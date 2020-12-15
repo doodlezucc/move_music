@@ -12,6 +12,7 @@ dependencies:
       url: https://github.com/doodlezucc/googleapis.git
       path: generated/googleapis
   googleapis_auth: any
+  spotify: ^0.4.0
 
 dev_dependencies:
   build_runner: ^1.10.0

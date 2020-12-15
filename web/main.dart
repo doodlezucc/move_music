@@ -1,5 +1,6 @@
 import 'dart:html';
 
+import 'spotify.dart';
 import 'youtube.dart';
 
 void main() {
@@ -7,5 +8,8 @@ void main() {
 
   querySelector('#authYT').onClick.listen((event) {
     initClient();
+  });
+  querySelector('#authSpotify').onClick.listen((event) {
+    search('what once was');
   });
 }
