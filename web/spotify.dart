@@ -1,16 +1,24 @@
-import 'dart:io';
+import 'dart:html';
 
 import 'package:spotify/spotify.dart';
 
-final clientSecret = File('client_secret').readAsStringSync();
+SpotifyApiCredentials credentials;
+SpotifyApi spotify;
 
-final credentials = SpotifyApiCredentials(
-  '14785ba1a003421cbef0535ced0159ae',
-  clientSecret,
-);
-final spotify = SpotifyApi(credentials);
+Future<void> ensureCredentials() async {
+  if (spotify != null) return;
+
+  final clientSecret = await HttpRequest.getString('client_secret');
+
+  credentials = SpotifyApiCredentials(
+    '14785ba1a003421cbef0535ced0159ae',
+    clientSecret,
+  );
+  spotify = SpotifyApi(credentials);
+}
 
 Future<void> search(String query) async {
+  await ensureCredentials();
   final bundledPages = spotify.search.get(query, types: [
     SearchType.track,
   ]);
