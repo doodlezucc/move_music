@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:googleapis/youtube/v3.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 
@@ -24,7 +22,9 @@ Future<List<PlaylistElement>> retrievePlaylists(YoutubeApi yt) async {
 }
 
 Future<List<Video>> retrieveLikedVideos(YoutubeApi yt,
-    {String pageToken}) async {
+    {String pageToken,
+    bool musicOnly = true,
+    bool firstPageOnly = false}) async {
   var likes = await yt.videos.list(
     ['snippet'],
     myRating: 'like',
@@ -41,11 +41,17 @@ Future<List<Video>> retrieveLikedVideos(YoutubeApi yt,
   // });
 
   //print(JsonEncoder.withIndent(' ').convert(likes.toJson()));
-  print(likes.nextPageToken);
+  //print(likes.nextPageToken);
 
   var output = likes.items;
 
-  if (likes.nextPageToken != null) {
+  if (musicOnly) {
+    var size = output.length;
+    output = output.where((vid) => vid.snippet.categoryId == '10').toList();
+    print('${size - output.length} videos removed because not music and stuff');
+  }
+
+  if (!firstPageOnly && likes.nextPageToken != null) {
     output
         .addAll(await retrieveLikedVideos(yt, pageToken: likes.nextPageToken));
   }
@@ -59,7 +65,7 @@ void initClient() async {
   var client = await flow.clientViaUserConsent(immediate: true);
 
   var yt = YoutubeApi(client);
-  var likes = await retrieveLikedVideos(yt);
+  var likes = await retrieveLikedVideos(yt, firstPageOnly: true);
   print('LIKES: ${likes.length}');
   var playlists = await retrievePlaylists(yt);
 
