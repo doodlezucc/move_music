@@ -56,7 +56,7 @@ packages:
       name: build
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.2"
+    version: "1.6.0"
   build_config:
     dependency: transitive
     description:
@@ -84,21 +84,21 @@ packages:
       name: build_resolvers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.4"
+    version: "1.5.0"
   build_runner:
     dependency: "direct dev"
     description:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.10.9"
+    version: "1.10.10"
   build_runner_core:
     dependency: transitive
     description:
       name: build_runner_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.1.4"
+    version: "6.1.5"
   build_web_compilers:
     dependency: "direct dev"
     description:
@@ -200,9 +200,11 @@ packages:
   googleapis:
     dependency: "direct main"
     description:
-      name: googleapis
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "generated/googleapis"
+      ref: HEAD
+      resolved-ref: "2568c5c02ad6c76699a2d05f6f88fdee8858bc25"
+      url: "https://github.com/doodlezucc/googleapis.git"
+    source: git
     version: "0.56.1"
   googleapis_auth:
     dependency: "direct main"

@@ -10,23 +10,58 @@ final clientId = ClientId(
     null);
 var scopes = [YoutubeApi.YoutubeForceSslScope];
 
-void initClient() async {
-  // Initialize the browser oauth2 flow functionality.
-  var flow = await createImplicitBrowserFlow(clientId, scopes);
-  var client = await flow.clientViaUserConsent(immediate: true);
-
-  var ytApi = YoutubeApi(client);
-  var response = await ytApi.playlists.list(
+Future<List<PlaylistElement>> retrievePlaylists(YoutubeApi yt) async {
+  var playlists = await yt.playlists.list(
     ['snippet'],
     mine: true,
     maxResults: 10,
   );
 
-  print(JsonEncoder.withIndent(' ').convert(response.toJson()));
+  return [
+    LikesPlaylistElement(),
+    ...playlists.items.map((e) => PlaylistElement.fromPlaylist(e)),
+  ];
+}
 
-  response.items.forEach((element) {
-    PlaylistElement(element);
-  });
+Future<List<Video>> retrieveLikedVideos(YoutubeApi yt,
+    {String pageToken}) async {
+  var likes = await yt.videos.list(
+    ['snippet'],
+    myRating: 'like',
+    maxResults: 50,
+    pageToken: pageToken,
+  );
+
+  // likes.items.forEach((vid) {
+  //   print(vid.snippet.channelTitle +
+  //       ' - "' +
+  //       vid.snippet.title +
+  //       '" https://youtu.be/' +
+  //       vid.id);
+  // });
+
+  //print(JsonEncoder.withIndent(' ').convert(likes.toJson()));
+  print(likes.nextPageToken);
+
+  var output = likes.items;
+
+  if (likes.nextPageToken != null) {
+    output
+        .addAll(await retrieveLikedVideos(yt, pageToken: likes.nextPageToken));
+  }
+
+  return output;
+}
+
+void initClient() async {
+  // Initialize the browser oauth2 flow functionality.
+  var flow = await createImplicitBrowserFlow(clientId, scopes);
+  var client = await flow.clientViaUserConsent(immediate: true);
+
+  var yt = YoutubeApi(client);
+  var likes = await retrieveLikedVideos(yt);
+  print('LIKES: ${likes.length}');
+  var playlists = await retrievePlaylists(yt);
 
   flow.close();
 }
