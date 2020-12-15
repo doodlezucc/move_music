@@ -1,7 +1,7 @@
 import 'dart:html';
 
-import 'spotify.dart';
-import 'youtube.dart';
+import 'dart/spotify.dart';
+import 'dart/youtube.dart';
 
 void main() {
   querySelector('#output').text = 'Your Dart app is running.';

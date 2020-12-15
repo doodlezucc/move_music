@@ -23,7 +23,7 @@ Future<void> search(String query) async {
     SearchType.track,
   ]);
 
-  var page = (await bundledPages.first()).first;
+  var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
   tracks.forEach((t) {
     print(t.artists.map((a) => a.name).join(', ') + ' - "' + t.name + '"');
