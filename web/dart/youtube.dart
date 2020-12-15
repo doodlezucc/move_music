@@ -59,15 +59,33 @@ Future<List<Video>> retrieveLikedVideos(YoutubeApi yt,
   return output;
 }
 
+Future<String> getLikedVideoPlaylistId(YoutubeApi yt,
+    {bool safe = false}) async {
+  if (!safe) return 'LL';
+
+  var channel =
+      (await yt.channels.list(['contentDetails'], mine: true)).items.first;
+  var playlists = channel.contentDetails.relatedPlaylists;
+  return playlists.likes;
+}
+
 void initClient() async {
   // Initialize the browser oauth2 flow functionality.
   var flow = await createImplicitBrowserFlow(clientId, scopes);
-  var client = await flow.clientViaUserConsent(immediate: true);
+  var client = await flow.clientViaUserConsent(immediate: false);
 
   var yt = YoutubeApi(client);
-  var likes = await retrieveLikedVideos(yt, firstPageOnly: true);
-  print('LIKES: ${likes.length}');
-  var playlists = await retrievePlaylists(yt);
+
+  var likedPlaylist = await yt.playlists.list(
+    ['contentDetails'],
+    id: [await getLikedVideoPlaylistId(yt)],
+  );
+
+  var likeCount = likedPlaylist.items.first.contentDetails.itemCount;
+
+  print('LIKES: $likeCount');
+  //var likes = await retrieveLikedVideos(yt, firstPageOnly: true);
+  //var playlists = await retrievePlaylists(yt);
 
   flow.close();
 }
