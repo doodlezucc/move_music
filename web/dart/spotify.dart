@@ -2,6 +2,8 @@ import 'dart:html';
 
 import 'package:spotify/spotify.dart';
 
+import 'song.dart';
+
 SpotifyApiCredentials credentials;
 SpotifyApi spotify;
 
@@ -17,7 +19,7 @@ Future<void> ensureCredentials() async {
   spotify = SpotifyApi(credentials);
 }
 
-Future<void> search(String query) async {
+Future<Iterable<Song>> search(String query) async {
   await ensureCredentials();
   final bundledPages = spotify.search.get(query, types: [
     SearchType.track,
@@ -25,7 +27,5 @@ Future<void> search(String query) async {
 
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
-  tracks.forEach((t) {
-    print(t.artists.map((a) => a.name).join(', ') + ' - "' + t.name + '"');
-  });
+  return tracks.map((e) => Song(e.name, e.artists.map((e) => e.name), e.id));
 }
