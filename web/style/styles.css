@@ -1,8 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto);
 
 html, body {
-  width: 100%;
-  height: 100%;
   margin: 0;
   font-family: 'Roboto', sans-serif;
   box-sizing: border-box;
@@ -17,25 +15,80 @@ body {
   text-align: center;
 }
 
-.playlist {
+ul {
+  padding-inline-start: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+li {
   background-color: #ddd;
   display: flex;
   flex-direction: row;
-  padding: 10px;
+  padding: 6px;
 }
-
-.playlist img {
+li img {
+  min-width: 80px;
   width: 80px;
   height: 80px;
   object-fit: cover;
-  margin-right: 10px;
+  margin-right: 6px;
 }
 
 .meta {
   display: flex;
   flex-direction: column;
 }
-
 .meta h3 {
   margin: 0;
+}
+
+.slim {
+  flex-direction: row;
+}
+.meta.slim {
+  width: 100%;
+}
+.slim > * {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-items: center;
+}
+.slim h3 {
+  font-size: 16px;
+}
+
+.song.slim > .meta {
+  width: 100%;
+}
+.song.slim > img {
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.match {
+  display: flex;
+  flex-direction: row;
+}
+.match img {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.song > .meta {
+  width: 35%;
+  flex: none;
+}
+
+.song > .matches {
+  width: 100%;
+}
+
+li:not(:first-child) {
+  border-top: 1px solid #777;
 }

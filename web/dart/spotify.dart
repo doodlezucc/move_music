@@ -20,6 +20,9 @@ Future<void> ensureCredentials() async {
 }
 
 Future<Iterable<Song>> search(String query) async {
+  query = query.replaceAll(
+      RegExp(r'[^A-Za-z0-9 ]'), ' '); // TODO: Allow all languages (Cariño)
+  print(query);
   await ensureCredentials();
   final bundledPages = spotify.search.get(query, types: [
     SearchType.track,
@@ -27,5 +30,6 @@ Future<Iterable<Song>> search(String query) async {
 
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
-  return tracks.map((e) => Song(e.name, e.artists.map((e) => e.name), e.id));
+  return tracks.map((e) => Song(
+      e.name, e.artists.map((e) => e.name), e.id, e.album.images.first.url));
 }

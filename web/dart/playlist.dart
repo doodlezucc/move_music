@@ -15,26 +15,25 @@ class PlaylistElement {
 
   PlaylistElement(
       this.name, this.description, this.thumbnailUrl, this.songCount) {
-    e = DivElement()
+    e = LIElement()
       ..className = 'playlist'
       ..append(ImageElement(src: thumbnailUrl))
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = name)
         ..append(SpanElement()..text = '$songCount Songs\n$description'))
-      ..onClick.listen((event) async {
-        print('Getting all songs of $name');
-        var songs = await getAllSongs();
-        songs = songs.take(10);
-        for (var song in songs) {
-          var matches = await searchSongMatches(song);
-          matches.forEach((m) {
-            print(
-                '${m.song.artists.first} - "${m.song.name}" (${m.similarity * 100}%)');
-          });
-        }
-      });
+      ..onClick.listen((event) => displayAllMatches());
     querySelector('#playlists').append(e);
+  }
+
+  Future<void> displayAllMatches() async {
+    print('Getting all songs of $name');
+    var songs = await getAllSongs();
+    //songs = songs.take(10);
+
+    for (var song in songs) {
+      await MoveElement(song).findSpotifyMatches();
+    }
   }
 
   PlaylistElement.fromPlaylist(Playlist pl)
@@ -53,8 +52,8 @@ class LikesPlaylistElement extends PlaylistElement {
   @override
   Future<Iterable<Song>> getAllSongs() async {
     var videos = await retrieveLikedVideos(firstPageOnly: true);
-    return videos
-        .map((e) => Song(e.snippet.title, [e.snippet.channelTitle], e.id));
+    return videos.map((e) => Song(e.snippet.title, [e.snippet.channelTitle],
+        e.id, e.snippet.thumbnails.medium.url));
   }
 
   Future<List<Video>> retrieveLikedVideos(
