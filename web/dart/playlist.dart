@@ -84,6 +84,7 @@ class LikesPlaylistElement extends PlaylistElement {
     if (musicOnly) {
       var size = output.length;
       output = output.where((vid) {
+        // 10 means Music
         if (vid.snippet.categoryId == '10') {
           return true;
         }

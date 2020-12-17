@@ -12,8 +12,11 @@ class SongMatch {
       : similarity = calculateSimilarity(query, song);
 
   static double calculateSimilarity(Song a, Song b) {
-    return (a.name.similarityTo(b.name) +
-            a.artists.first.similarityTo(b.artists.first)) /
+    return (a.name.toLowerCase().similarityTo(b.name.toLowerCase()) +
+            a.artists
+                .join()
+                .toLowerCase()
+                .similarityTo(b.artists.join().toLowerCase())) /
         2;
   }
 }
@@ -57,10 +60,11 @@ class MoveElement {
     var matchParent = e.querySelector('.matches');
     var matches = await searchSongMatches(source);
     if (matches.isEmpty) {
+      print(source);
       print('EMPTY RESULT LIST');
       return;
     }
-    if (matches.first.similarity >= 0.95) {
+    if (matches.first.similarity >= 1.95) {
       selectMatch(matches.first.song);
     } else {
       matches.forEach((m) {

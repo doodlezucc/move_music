@@ -9,4 +9,7 @@ class Song {
 
   Song(this.name, Iterable<String> artists, this.id, this.coverArtUrl)
       : artists = artists.map((a) => _removeTopic(a));
+
+  @override
+  String toString() => artists.join(', ') + ' - "' + name + '"';
 }

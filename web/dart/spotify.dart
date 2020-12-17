@@ -23,7 +23,6 @@ Future<void> ensureCredentials() async {
 
 Future<Iterable<Song>> search(String query) async {
   query = query.replaceAll(RegExp(r'[^\p{L} 0-9]', unicode: true), ' ');
-  print(query);
   await ensureCredentials();
   var bundledPages = spotify.search.get(query, types: [
     SearchType.track,
@@ -101,9 +100,11 @@ Future<void> likeTracks(Iterable<String> ids,
     {bool orderMatters = false}) async {
   if (await ensureGrant()) {
     // Access granted
+    var idList = ids.toList();
+
     if (orderMatters) {
       for (var i = 1; i <= ids.length; i++) {
-        var id = ids.elementAt(ids.length - i);
+        var id = idList[ids.length - i];
         await spotify.tracks.me.saveOne(id);
         print('Liked ' + id + ' | $i/${ids.length}');
         // Spotify scrambles the order if two or more tracks are added
@@ -111,8 +112,11 @@ Future<void> likeTracks(Iterable<String> ids,
         await Future.delayed(Duration(milliseconds: 1000));
       }
     } else {
-      var idList = ids.toList();
-      await spotify.tracks.me.save(idList);
+      var batchSize = 50;
+      for (var i = 0; i < ids.length; i += batchSize) {
+        await spotify.tracks.me.save(idList.sublist(i));
+        print('Liked ${i + batchSize} tracks.');
+      }
     }
   } else {
     print('Access denied');
