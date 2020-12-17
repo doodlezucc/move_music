@@ -10,7 +10,10 @@ void main() {
     await yt.initClient(true);
     await yt.displayUserPlaylists();
   });
-  querySelector('#authSpotify').onClick.listen((event) async {
+  querySelector('#searchSpotify').onClick.listen((event) async {
     await spotify.search('what once was');
+  });
+  querySelector('#authSpotify').onClick.listen((event) async {
+    await spotify.displayUserLikes();
   });
 }

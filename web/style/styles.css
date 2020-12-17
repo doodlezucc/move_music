@@ -92,3 +92,7 @@ li img {
 li:not(:first-child) {
   border-top: 1px solid #777;
 }
+
+.hidden {
+  display: none;
+}
