@@ -20,8 +20,7 @@ Future<void> ensureCredentials() async {
 }
 
 Future<Iterable<Song>> search(String query) async {
-  query = query.replaceAll(
-      RegExp(r'[^A-Za-z0-9 ]'), ' '); // TODO: Allow all languages (Cariño)
+  query = query.replaceAll(RegExp(r'[^\p{L} 0-9]', unicode: true), ' ');
   print(query);
   await ensureCredentials();
   final bundledPages = spotify.search.get(query, types: [
