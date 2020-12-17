@@ -2,13 +2,12 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:spotify/spotify.dart';
-import 'package:oauth2/oauth2.dart';
 
 import 'song.dart';
 
 SpotifyApiCredentials credentials;
 SpotifyApi spotify;
-AuthorizationCodeGrant grant;
+bool gotUserGrant = false;
 
 Future<void> ensureCredentials() async {
   if (spotify != null) return;
@@ -36,43 +35,77 @@ Future<Iterable<Song>> search(String query) async {
       e.name, e.artists.map((e) => e.name), e.id, e.album.images.first.url));
 }
 
-Future<void> ensureGrant() async {
+Future<bool> ensureGrant() async {
+  if (gotUserGrant) return true;
   await ensureCredentials();
-  if (grant != null) return;
 
-  grant = SpotifyApi.authorizationCodeGrant(credentials);
-
+  var grant = SpotifyApi.authorizationCodeGrant(credentials);
   var redirectUri = 'http://localhost:8080/spotify/callback.html';
-
   var authUri = grant.getAuthorizationUrl(
     Uri.parse(redirectUri),
     scopes: ['user-library-read'],
   );
 
-  var completer = Completer();
+  var completer = Completer<bool>();
+
+  var popup = openCenteredPopup(
+    authUri.toString(),
+    name: 'Spotify Authorization',
+  );
 
   StreamSubscription sub;
-  sub = window.onMessage.listen((e) {
-    if (e.origin == window.location.origin) {
-      completer.complete(Uri.parse(e.data));
+  var checkClosed = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    if (popup.closed) {
+      timer.cancel();
       sub.cancel();
+      completer.complete(false);
     }
   });
 
+  // Wait for the pop-up to notify this window
+  sub = window.onMessage.listen((e) {
+    if (e.origin == window.location.origin) {
+      checkClosed.cancel();
+      sub.cancel();
+
+      // The pop-up message is defined as its window location (a URL)
+      // in web/spotify/callback.html
+      var spotifyParams = Uri.parse(e.data).queryParameters;
+      print(spotifyParams);
+
+      if (spotifyParams.containsKey('error')) {
+        print('Spotify Auth Error: ' + spotifyParams['error']);
+        return completer.complete(false);
+      }
+
+      spotify = SpotifyApi.fromAuthCodeGrant(grant, e.data);
+      gotUserGrant = true;
+      completer.complete(true);
+    }
+  });
+
+  return completer.future;
+}
+
+WindowBase openCenteredPopup(String url,
+    {String name = 'Popup', int width = 500}) {
   var inset = 200;
-  var width = window.outerWidth - inset * 2;
+  var left = (window.outerWidth - width) / 2;
   var height = window.outerHeight - inset * 2;
 
-  window.open(authUri.toString(), 'Spotify Authorization',
-      'left=$inset, top=$inset, width=$width, height=$height');
-
-  // wait for the pop-up to notify this window
-  Uri resultUri = await completer.future;
-
-  print('he actually did it whaaaaa-');
-  print(resultUri.queryParameters);
+  return window.open(
+      url, name, 'left=$left, top=$inset, width=$width, height=$height');
 }
 
 Future<void> displayUserLikes() async {
-  await ensureGrant();
+  if (await ensureGrant()) {
+    // Get first 20 liked tracks of user
+    var savedTracksPage = await spotify.tracks.me.saved.first();
+    savedTracksPage.items.forEach((t) {
+      var artists = t.track.artists.map((a) => a.name).join(', ');
+      print('$artists - "${t.track.name}"');
+    });
+  } else {
+    print('Access denied');
+  }
 }
