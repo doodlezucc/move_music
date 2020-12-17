@@ -43,7 +43,7 @@ Future<bool> ensureGrant() async {
   var redirectUri = 'http://localhost:8080/spotify/callback.html';
   var authUri = grant.getAuthorizationUrl(
     Uri.parse(redirectUri),
-    scopes: ['user-library-read'],
+    scopes: ['user-library-modify'],
   );
 
   var completer = Completer<bool>();
@@ -88,8 +88,8 @@ Future<bool> ensureGrant() async {
 }
 
 WindowBase openCenteredPopup(String url,
-    {String name = 'Popup', int width = 500}) {
-  var inset = 200;
+    {String name = 'Popup', int width = 800}) {
+  var inset = 150;
   var left = (window.outerWidth - width) / 2;
   var height = window.outerHeight - inset * 2;
 
@@ -97,14 +97,23 @@ WindowBase openCenteredPopup(String url,
       url, name, 'left=$left, top=$inset, width=$width, height=$height');
 }
 
-Future<void> displayUserLikes() async {
+Future<void> likeTracks(Iterable<String> ids,
+    {bool orderMatters = false}) async {
   if (await ensureGrant()) {
-    // Get first 20 liked tracks of user
-    var savedTracksPage = await spotify.tracks.me.saved.first();
-    savedTracksPage.items.forEach((t) {
-      var artists = t.track.artists.map((a) => a.name).join(', ');
-      print('$artists - "${t.track.name}"');
-    });
+    // Access granted
+    if (orderMatters) {
+      for (var i = 1; i <= ids.length; i++) {
+        var id = ids.elementAt(ids.length - i);
+        await spotify.tracks.me.saveOne(id);
+        print('Liked ' + id + ' | $i/${ids.length}');
+        // Spotify scrambles the order if two or more tracks are added
+        // to a playlist in less than a second. idk why. this makes me sad.
+        await Future.delayed(Duration(milliseconds: 1000));
+      }
+    } else {
+      var idList = ids.toList();
+      await spotify.tracks.me.save(idList);
+    }
   } else {
     print('Access denied');
   }
