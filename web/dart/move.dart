@@ -41,12 +41,12 @@ class MoveElement {
   MoveElement(this.source) {
     e = LIElement()
       ..className = 'song'
-      ..append(ImageElement(src: source.coverArtUrl))
+      ..append(ImageElement(src: source.coverArtUrl)..className = 'square')
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = source.name)
         ..append(SpanElement()..text = source.artists.join(', ')))
-      ..append(DivElement()..className = 'matches')
+      ..append(TableElement()..className = 'matches')
       ..onClick.listen((event) => addOnSpotify());
   }
 
@@ -57,32 +57,34 @@ class MoveElement {
   }
 
   Future<void> findSpotifyMatches() async {
-    var matchParent = e.querySelector('.matches');
     var matches = await searchSongMatches(source);
     if (matches.isEmpty) {
       print(source);
-      print('EMPTY RESULT LIST');
-      return;
-    }
-    if (matches.first.similarity >= 1.95) {
+    } else if (matches.first.similarity >= 0.95) {
       selectMatch(matches.first.song);
     } else {
       matches.forEach((m) {
-        var matchE = DivElement()
-          ..className = 'match'
-          ..append(ImageElement(src: m.song.coverArtUrl))
-          ..append(DivElement()
-            ..className = 'meta slim'
-            ..append(HeadingElement.h3()..text = m.song.name)
-            ..append(SpanElement()..text = m.song.artists.join(', '))
-            ..append(SpanElement()
-              ..text = (m.similarity * 100).toStringAsFixed(0) + '% match'))
-          ..onClick.listen((event) => addOnSpotify());
-
-        matchParent.append(matchE);
+        _createRow(m);
       });
     }
     querySelector('#songs').append(e);
+  }
+
+  void _createRow(SongMatch m) {
+    TableCellElement cell(dynamic child) {
+      if (child is HtmlElement) return TableCellElement()..append(child);
+      return TableCellElement()..text = child;
+    }
+
+    var matchE = TableRowElement()
+      ..append(
+          cell(ImageElement(src: m.song.coverArtUrl)..className = 'square'))
+      ..append(cell(m.song.name))
+      ..append(cell(m.song.artists.join(', ')))
+      ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
+      ..onClick.listen((event) => addOnSpotify());
+
+    e.querySelector('.matches').append(matchE);
   }
 
   void addOnSpotify() {

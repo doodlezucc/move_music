@@ -19,7 +19,7 @@ class PlaylistElement {
       this.name, this.description, this.thumbnailUrl, this.songCount) {
     e = LIElement()
       ..className = 'playlist'
-      ..append(ImageElement(src: thumbnailUrl))
+      ..append(ImageElement(src: thumbnailUrl)..className = 'square')
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = name)
