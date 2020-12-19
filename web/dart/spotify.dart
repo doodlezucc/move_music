@@ -31,7 +31,11 @@ Future<Iterable<Song>> search(String query) async {
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
   return tracks.map((e) => Song(
-      e.name, e.artists.map((e) => e.name), e.id, e.album.images.first.url));
+        name: e.name,
+        artists: e.artists.map((e) => e.name),
+        id: e.id,
+        coverArtUrl: e.album.images.first.url,
+      ));
 }
 
 Future<bool> ensureGrant() async {

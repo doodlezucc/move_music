@@ -62,8 +62,12 @@ class LikesPlaylistElement extends PlaylistElement {
   @override
   Future<Iterable<Song>> getAllSongs() async {
     var videos = await retrieveLikedVideos(firstPageOnly: true);
-    return videos.map((e) => Song(e.snippet.title, [e.snippet.channelTitle],
-        e.id, e.snippet.thumbnails.medium.url));
+    return videos.map((v) => Song(
+          name: v.snippet.title,
+          artists: [v.snippet.channelTitle],
+          id: v.id,
+          coverArtUrl: v.snippet.thumbnails.medium.url,
+        ));
   }
 
   Future<List<Video>> retrieveLikedVideos(
@@ -71,13 +75,11 @@ class LikesPlaylistElement extends PlaylistElement {
       bool musicOnly = true,
       bool firstPageOnly = false}) async {
     var likes = await yt.videos.list(
-      ['snippet'],
+      ['snippet', 'contentDetails'],
       myRating: 'like',
       maxResults: 50,
       pageToken: pageToken,
     );
-
-    //print(JsonEncoder.withIndent(' ').convert(likes.toJson()));
 
     var output = likes.items;
 
