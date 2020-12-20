@@ -1,9 +1,13 @@
 import 'dart:html';
 
+import 'dart/duration.dart';
 import 'dart/spotify.dart' as spotify;
 import 'dart/youtube.dart' as yt;
 
 void main() {
+  print(durationString(parseIsoDuration('PT2M16S')));
+  print(durationString(parseIsoDuration('PT5S')));
+
   querySelector('#output').text = 'Your Dart app is running.';
 
   querySelector('#authYT').onClick.listen((event) async {

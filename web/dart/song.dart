@@ -5,6 +5,7 @@ class Song {
   final String name;
   final Iterable<String> artists;
   final String coverArtUrl;
+  final Duration duration;
 
   static String _removeTopic(String s) =>
       s.endsWith(' - Topic') ? s.substring(0, s.length - 8) : s;
@@ -14,7 +15,9 @@ class Song {
     @required Iterable<String> artists,
     @required this.id,
     @required this.coverArtUrl,
-  }) : artists = artists.map((a) => _removeTopic(a));
+    @required Duration duration,
+  })  : artists = artists.map((a) => _removeTopic(a)),
+        duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil());
 
   @override
   String toString() => artists.join(', ') + ' - "' + name + '"';

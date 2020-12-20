@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:googleapis/youtube/v3.dart';
 
+import 'duration.dart';
 import 'move.dart';
 import 'song.dart';
 import 'spotify.dart' as spotify;
@@ -55,6 +56,16 @@ class PlaylistElement {
   }
 }
 
+Song _vidToSong(Video v) {
+  return Song(
+    name: v.snippet.title,
+    artists: [v.snippet.channelTitle],
+    id: v.id,
+    coverArtUrl: v.snippet.thumbnails.medium.url,
+    duration: parseIsoDuration(v.contentDetails.duration),
+  );
+}
+
 class LikesPlaylistElement extends PlaylistElement {
   LikesPlaylistElement(int songCount)
       : super('Liked Songs', '', 'style/likes.png', songCount);
@@ -62,12 +73,7 @@ class LikesPlaylistElement extends PlaylistElement {
   @override
   Future<Iterable<Song>> getAllSongs() async {
     var videos = await retrieveLikedVideos(firstPageOnly: true);
-    return videos.map((v) => Song(
-          name: v.snippet.title,
-          artists: [v.snippet.channelTitle],
-          id: v.id,
-          coverArtUrl: v.snippet.thumbnails.medium.url,
-        ));
+    return videos.map((v) => _vidToSong(v));
   }
 
   Future<List<Video>> retrieveLikedVideos(

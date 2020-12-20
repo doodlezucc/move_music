@@ -35,6 +35,7 @@ Future<Iterable<Song>> search(String query) async {
         artists: e.artists.map((e) => e.name),
         id: e.id,
         coverArtUrl: e.album.images.first.url,
+        duration: e.duration,
       ));
 }
 

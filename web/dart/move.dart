@@ -1,5 +1,6 @@
 import 'dart:html';
 
+import 'duration.dart';
 import 'match.dart';
 import 'song.dart';
 
@@ -15,7 +16,10 @@ class MoveElement {
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = source.name)
-        ..append(SpanElement()..text = source.artists.join(', ')))
+        ..append(SpanElement()..text = source.artists.join(', '))
+        ..append(SpanElement()
+          ..text = durationString(source.duration)
+          ..className = 'source-duration'))
       ..append(TableElement()..className = 'matches')
       ..onClick.listen((event) => addOnSpotify());
   }
@@ -29,6 +33,7 @@ class MoveElement {
   Future<void> findSpotifyMatches() async {
     var matches = await searchSongMatches(source);
     if (matches.isEmpty) {
+      print('NO MATCHES FOUND');
       print(source);
     } else if (matches.first.similarity >= 0.95) {
       selectMatch(matches.first.song);
@@ -51,6 +56,7 @@ class MoveElement {
           cell(ImageElement(src: m.song.coverArtUrl)..className = 'square'))
       ..append(cell(m.song.name))
       ..append(cell(m.song.artists.join(', ')))
+      ..append(cell(durationString(m.song.duration)))
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
       ..onClick.listen((event) => addOnSpotify());
 
