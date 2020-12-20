@@ -1,21 +1,23 @@
 import 'dart:html';
 
-import 'dart/duration.dart';
+import 'dart/playlist.dart';
 import 'dart/spotify.dart' as spotify;
 import 'dart/youtube.dart' as yt;
 
 void main() {
-  print(durationString(parseIsoDuration('PT2M16S')));
-  print(durationString(parseIsoDuration('PT5S')));
-
-  querySelector('#output').text = 'Your Dart app is running.';
+  List<PlaylistElement> playlists;
 
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
-    await yt.displayUserPlaylists();
+    playlists = (await yt.displayUserPlaylists()).toList();
   });
   querySelector('#searchSpotify').onClick.listen((event) async {
     await spotify.search('what once was');
+  });
+  querySelector('#authSpotify').onClick.listen((event) async {
+    for (var pl in playlists) {
+      await pl.move();
+    }
   });
 
   document.onKeyPress.listen((event) {

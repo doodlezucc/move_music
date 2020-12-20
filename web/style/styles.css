@@ -129,18 +129,20 @@ li > img.square {
   flex: none;
 }
 .matches td:nth-child(n+3) {
-  padding-left: 24px;
+  padding-left: 20px;
 }
 .matches td:nth-child(2) {
-  flex: auto;
+  width: 30%;
   color: white;
 }
 .matches td:nth-child(3) {
   width: 50%;
   flex: auto;
 }
-.matches td:nth-child(4) {
-  width: 10%;
+.matches td:last-child {
+  width: 120px;
+  text-align: end;
+  padding: 0;
 }
 
 li.slim .source-duration {

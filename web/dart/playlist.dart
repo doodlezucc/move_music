@@ -39,8 +39,6 @@ class PlaylistElement {
       await moveElem.findSpotifyMatches();
       moves.add(moveElem);
     }
-
-    await move();
   }
 
   Future<void> move() async {

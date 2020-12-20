@@ -11,7 +11,6 @@ class MoveElement {
   SongMatch get match => matches[selected];
   HtmlElement e;
   set _collapsed(bool v) {
-    print(v);
     e.classes.toggle('slim', v);
     e.querySelector('.meta').classes.toggle('slim', v);
   }

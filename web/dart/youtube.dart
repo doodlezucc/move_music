@@ -11,7 +11,7 @@ YoutubeApi yt;
 
 Future<Iterable<PlaylistElement>> retrievePlaylists() async {
   var playlists = await yt.playlists.list(
-    ['snippet'],
+    ['snippet', 'contentDetails'],
     mine: true,
     maxResults: 10,
   );
@@ -37,7 +37,7 @@ void initClient(bool immediate) async {
   yt = YoutubeApi(client);
 }
 
-void displayUserPlaylists() async {
+Future<Iterable<PlaylistElement>> displayUserPlaylists() async {
   var likedPlaylist = await yt.playlists.list(
     ['contentDetails'],
     id: [await getLikedVideoPlaylistId()],
@@ -45,6 +45,8 @@ void displayUserPlaylists() async {
 
   var likeCount = likedPlaylist.items.first.contentDetails.itemCount;
 
-  LikesPlaylistElement(likeCount);
-  await retrievePlaylists();
+  return [
+    LikesPlaylistElement(likeCount),
+    ...await retrievePlaylists(),
+  ];
 }
