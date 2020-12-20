@@ -114,7 +114,7 @@ class LikesPlaylistElement extends PlaylistElement {
   @override
   Future<void> move() async {
     print('Moving all liked songs');
-    var ids = moves.where((m) => m.match != null).map((e) => e.match.id);
+    var ids = moves.where((m) => m.match != null).map((e) => e.match.song.id);
     await spotify.likeTracks(ids);
     print('Moved $name!');
   }

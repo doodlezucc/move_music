@@ -83,6 +83,9 @@ li > img.square {
   content: '-';
   margin: 0 5px;
 }
+.song.slim > .matches {
+  display: none;
+}
 
 .song.slim > .meta {
   width: 100%;

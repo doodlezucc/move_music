@@ -6,8 +6,15 @@ import 'song.dart';
 
 class MoveElement {
   final Song source;
-  Song match;
+  int selected = -1;
+  List<SongMatch> matches;
+  SongMatch get match => matches[selected];
   HtmlElement e;
+  set _collapsed(bool v) {
+    print(v);
+    e.classes.toggle('slim', v);
+    e.querySelector('.meta').classes.toggle('slim', v);
+  }
 
   MoveElement(this.source) {
     e = LIElement()
@@ -21,26 +28,33 @@ class MoveElement {
           ..text = durationString(source.duration)
           ..className = 'source-duration'))
       ..append(TableElement()..className = 'matches')
-      ..onClick.listen((event) => addOnSpotify());
+      ..onClick.listen((event) {
+        if (!(event.target as HtmlElement).matchesWithAncestors('table')) {
+          _collapsed = false;
+        }
+      });
   }
 
-  void selectMatch(Song s) {
-    match = s;
-    e.classes.add('slim');
-    e.querySelector('.meta').classes.add('slim');
+  void selectMatch(SongMatch s) {
+    var rows = e.querySelector('.matches').children;
+    if (selected >= 0) {
+      rows[selected].classes.remove('selected');
+    }
+    selected = matches.indexOf(s);
+    rows[selected].classes.add('selected');
+    _collapsed = true;
   }
 
   Future<void> findSpotifyMatches() async {
-    var matches = await searchSongMatches(source);
+    matches = await searchSongMatches(source);
+    matches.forEach((m) {
+      _createRow(m);
+    });
     if (matches.isEmpty) {
       print('NO MATCHES FOUND');
       print(source);
     } else if (matches.first.similarity >= 0.95) {
-      selectMatch(matches.first.song);
-    } else {
-      matches.forEach((m) {
-        _createRow(m);
-      });
+      selectMatch(matches.first);
     }
     querySelector('#songs').append(e);
   }
@@ -58,12 +72,8 @@ class MoveElement {
       ..append(cell(m.song.artists.join(', ')))
       ..append(cell(durationString(m.song.duration)))
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
-      ..onClick.listen((event) => addOnSpotify());
+      ..onClick.listen((event) => selectMatch(m));
 
     e.querySelector('.matches').append(matchE);
-  }
-
-  void addOnSpotify() {
-    print('add on spotify');
   }
 }
