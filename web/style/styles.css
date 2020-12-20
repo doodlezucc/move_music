@@ -2,12 +2,14 @@
 
 html, body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
   box-sizing: border-box;
 }
 
 body {
   padding: 30px;
+  background-color: #333;
+  color: #999;
+  font-family: 'Roboto', sans-serif;
 }
 
 #output {
@@ -32,10 +34,14 @@ ul {
 }
 
 li {
-  background-color: #ddd;
+  background-color: #151515;
   display: flex;
   flex-direction: row;
   padding: 6px;
+  cursor: default;
+}
+li:hover {
+  background-color: #222;
 }
 li > img.square {
   --size: 80px;
@@ -47,6 +53,8 @@ li > img.square {
 }
 .meta h3 {
   margin: 0;
+  font-weight: normal;
+  color: white;
 }
 
 .slim {
@@ -62,8 +70,18 @@ li > img.square {
   text-overflow: ellipsis;
   align-items: center;
 }
-.slim h3 {
+
+.song.slim {
+  background-color: #1d1d1d;
+}
+.song.slim h3 {
   font-size: 16px;
+  flex: none;
+  width: auto;
+}
+.song.slim span::before {
+  content: '-';
+  margin: 0 5px;
 }
 
 .song.slim > .meta {
@@ -78,14 +96,29 @@ li > img.square {
 .matches {
   width: 100%;
   table-layout: fixed;
+  border-collapse: collapse;
 }
+.matches:empty {
+  display: none;
+}
+
 .matches > tr {
   align-items: center;
+  display: flex;
+  cursor: pointer;
+  transition-duration: 0.1s;
+  padding-right: 4px;
 }
+.matches > tr:hover {
+  background-color: #444;
+  color: white;
+}
+
 .matches img {
   --size: 20px;
   vertical-align: bottom;
 }
+
 .matches td {
   text-overflow: ellipsis;
   overflow: hidden;
@@ -97,19 +130,14 @@ li > img.square {
 }
 .matches td:nth-child(2) {
   flex: auto;
-  font-weight: bold;
+  color: white;
 }
 .matches td:nth-child(3) {
-  width: 40%;
+  width: 50%;
+  flex: auto;
 }
 .matches td:nth-child(4) {
-  width: 20%;
-}
-.matches:empty {
-  display: none;
-}
-.matches > tr {
-  display: flex;
+  width: 10%;
 }
 
 li.slim .source-duration {
@@ -121,7 +149,7 @@ li.slim .source-duration {
 }
 
 li:not(:first-child) {
-  border-top: 1px solid #777;
+  border-top: 1px solid #444;
 }
 
 .hidden {
