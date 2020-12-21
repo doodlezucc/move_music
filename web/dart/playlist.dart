@@ -9,6 +9,7 @@ import 'spotify.dart' as spotify;
 import 'youtube.dart';
 
 class PlaylistElement {
+  final String id;
   final String name;
   final String description;
   final String thumbnailUrl;
@@ -17,7 +18,7 @@ class PlaylistElement {
   HtmlElement e;
 
   PlaylistElement(
-      this.name, this.description, this.thumbnailUrl, this.songCount) {
+      this.id, this.name, this.description, this.thumbnailUrl, this.songCount) {
     e = LIElement()
       ..className = 'playlist'
       ..append(ImageElement(src: thumbnailUrl)..className = 'square')
@@ -32,7 +33,6 @@ class PlaylistElement {
   Future<void> displayAllMatches() async {
     print('Getting all songs of $name');
     var songs = await getAllSongs();
-    songs = songs.take(10);
 
     for (var song in songs) {
       var moveElem = MoveElement(song);
@@ -46,46 +46,37 @@ class PlaylistElement {
   }
 
   PlaylistElement.fromPlaylist(Playlist pl)
-      : this(pl.snippet.title, pl.snippet.description,
+      : this(pl.id, pl.snippet.title, pl.snippet.description,
             pl.snippet.thumbnails.medium.url, pl.contentDetails.itemCount);
 
   Future<Iterable<Song>> getAllSongs() async {
-    return [];
-  }
-}
-
-Song _vidToSong(Video v) {
-  return Song(
-    name: v.snippet.title,
-    artists: [v.snippet.channelTitle],
-    id: v.id,
-    coverArtUrl: v.snippet.thumbnails.medium.url,
-    duration: parseIsoDuration(v.contentDetails.duration),
-  );
-}
-
-class LikesPlaylistElement extends PlaylistElement {
-  LikesPlaylistElement(int songCount)
-      : super('Liked Songs', '', 'style/likes.png', songCount);
-
-  @override
-  Future<Iterable<Song>> getAllSongs() async {
-    var videos = await retrieveLikedVideos(firstPageOnly: true);
-    return videos.map((v) => _vidToSong(v));
+    return (await _getAllVideos()).map((v) => _vidToSong(v));
   }
 
-  Future<List<Video>> retrieveLikedVideos(
-      {String pageToken,
-      bool musicOnly = true,
-      bool firstPageOnly = false}) async {
-    var likes = await yt.videos.list(
-      ['snippet', 'contentDetails'],
-      myRating: 'like',
+  Future<VideoListResponse> _getVideosOnPage(String pageToken) async {
+    var response = await yt.playlistItems.list(
+      ['contentDetails'],
+      playlistId: id,
       maxResults: 50,
       pageToken: pageToken,
     );
+    // make Videos out of PlaylistItems
+    return (await yt.videos.list(
+      ['snippet', 'contentDetails'],
+      id: response.items
+          .map((plItem) => plItem.contentDetails.videoId)
+          .toList(),
+      maxResults: 50,
+    ))
+      ..nextPageToken = response.nextPageToken;
+  }
 
-    var output = likes.items;
+  Future<List<Video>> _getAllVideos(
+      {String pageToken,
+      bool musicOnly = true,
+      bool firstPageOnly = false}) async {
+    var videos = await _getVideosOnPage(pageToken);
+    var output = videos.items;
 
     if (musicOnly) {
       var size = output.length;
@@ -102,11 +93,38 @@ class LikesPlaylistElement extends PlaylistElement {
       }
     }
 
-    if (!firstPageOnly && likes.nextPageToken != null) {
-      output.addAll(await retrieveLikedVideos(pageToken: likes.nextPageToken));
+    print('Got page $pageToken');
+
+    if (!firstPageOnly && videos.nextPageToken != null) {
+      output.addAll(await _getAllVideos(pageToken: videos.nextPageToken));
     }
 
     return output;
+  }
+}
+
+Song _vidToSong(dynamic v) {
+  return Song(
+    name: v.snippet.title,
+    artists: [v.snippet.channelTitle],
+    id: v.id,
+    coverArtUrl: v.snippet.thumbnails.medium.url,
+    duration: parseIsoDuration(v.contentDetails.duration),
+  );
+}
+
+class LikesPlaylistElement extends PlaylistElement {
+  LikesPlaylistElement(int songCount)
+      : super('LL', 'Liked Songs', '', 'style/likes.png', songCount);
+
+  @override
+  Future<VideoListResponse> _getVideosOnPage(String pageToken) async {
+    return await yt.videos.list(
+      ['snippet', 'contentDetails'],
+      myRating: 'like',
+      maxResults: 50,
+      pageToken: pageToken,
+    );
   }
 
   @override

@@ -200,11 +200,9 @@ packages:
   googleapis:
     dependency: "direct main"
     description:
-      path: "generated/googleapis"
-      ref: HEAD
-      resolved-ref: "2568c5c02ad6c76699a2d05f6f88fdee8858bc25"
-      url: "https://github.com/doodlezucc/googleapis.git"
-    source: git
+      name: googleapis
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.56.1"
   googleapis_auth:
     dependency: "direct main"

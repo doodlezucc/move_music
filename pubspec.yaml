@@ -7,10 +7,7 @@ environment:
   sdk: '>=2.10.0 <3.0.0'
 
 dependencies:
-  googleapis:
-    git:
-      url: https://github.com/doodlezucc/googleapis.git
-      path: generated/googleapis
+  googleapis: any
   googleapis_auth: any
   spotify: ^0.4.0
   string_similarity: ^1.1.0
