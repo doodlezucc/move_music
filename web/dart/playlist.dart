@@ -27,16 +27,14 @@ abstract class PlaylistElement {
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = name)
-        ..append(SpanElement()..text = '$songCount Songs\n$description'))
+        ..append(SpanElement()..innerHtml = '$songCount Songs<br>$description'))
       ..onClick.listen((event) => displayAllMatches());
     querySelector('#playlists').append(e);
   }
 
   Future<void> displayAllMatches() async {
     print('Getting all songs of $name');
-    var songs = await getAllSongs();
-
-    for (var song in songs) {
+    await for (var song in getAllSongs()) {
       if (!allIdMoves.containsKey(song.id)) {
         var moveElem = MoveElement(song);
         allIdMoves[song.id] = moveElem;
@@ -67,7 +65,7 @@ abstract class PlaylistElement {
       : this(pl.id, pl.snippet.title, pl.snippet.description,
             pl.snippet.thumbnails.medium.url, pl.contentDetails.itemCount);
 
-  Future<Iterable<Song>> getAllSongs();
+  Stream<Song> getAllSongs();
 }
 
 class YouTubePlaylistElement extends PlaylistElement {
@@ -79,8 +77,10 @@ class YouTubePlaylistElement extends PlaylistElement {
             pl.snippet.thumbnails.medium.url, pl.contentDetails.itemCount);
 
   @override
-  Future<Iterable<Song>> getAllSongs() async {
-    return (await getAllVideos()).map((v) => vidToSong(v));
+  Stream<Song> getAllSongs() async* {
+    await for (var video in getAllVideos()) {
+      yield vidToSong(video);
+    }
   }
 
   Future<VideoListResponse> getVideosOnPage(String pageToken) async {
@@ -101,10 +101,10 @@ class YouTubePlaylistElement extends PlaylistElement {
       ..nextPageToken = response.nextPageToken;
   }
 
-  Future<List<Video>> getAllVideos(
+  Stream<Video> getAllVideos(
       {String pageToken,
       bool musicOnly = true,
-      bool firstPageOnly = false}) async {
+      bool firstPageOnly = false}) async* {
     var videos = await getVideosOnPage(pageToken);
     var output = videos.items;
 
@@ -125,11 +125,11 @@ class YouTubePlaylistElement extends PlaylistElement {
 
     print('Got page $pageToken');
 
-    if (!firstPageOnly && videos.nextPageToken != null) {
-      output.addAll(await getAllVideos(pageToken: videos.nextPageToken));
-    }
+    yield* Stream.fromIterable(output);
 
-    return output;
+    if (!firstPageOnly && videos.nextPageToken != null) {
+      yield* getAllVideos(pageToken: videos.nextPageToken);
+    }
   }
 
   @override
