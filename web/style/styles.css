@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Raleway);
 
 html, body {
   margin: 0;
@@ -7,9 +8,10 @@ html, body {
 
 body {
   padding: 30px;
-  background-color: #333;
+  background-color: #282828;
   color: #999;
   font-family: 'Roboto', sans-serif;
+  --color-light: #ccc;
 }
 
 #output {
@@ -17,13 +19,79 @@ body {
   text-align: center;
 }
 
-img.square {
+h2 {
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+p {
+  margin: 0;
+}
+
+div.square {
   --size: 80px;
   min-width: var(--size);
   width: var(--size);
   height: var(--size);
-  object-fit: cover;
   margin-right: 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+div.square > img {
+  height: 100%;
+}
+
+button {
+  border: 2px solid var(--color-light);
+  color: var(--color-light);
+  background-color: #151515;
+  font-family: inherit;
+  font-size: 16px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  outline: none;
+}
+button:hover {
+  border-color: white;
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, [col-start] minmax(350px, 1fr) [col-end]);
+  gap: 2px;
+  margin: 20px 0;
+}
+
+.grid > * {
+  transition-property: transform;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+.grid > *:hover {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+.grid > *:active {
+  transform: scale(0.95);
+}
+
+li.playlist {
+  overflow: hidden;
+  height: var(--size);
+  user-select: none;
+}
+li.playlist > .square {
+  border: 1px solid #fff;
+}
+
+li.playlist.ignored {
+  opacity: 0.35;
 }
 
 ul {
@@ -31,6 +99,9 @@ ul {
   width: 100%;
   display: flex;
   flex-direction: column;
+  max-height: 300px;
+  height: 300px;
+  overflow-y: auto;
 }
 
 li {
@@ -38,12 +109,12 @@ li {
   display: flex;
   flex-direction: row;
   padding: 6px;
-  cursor: default;
+  user-select: none;
 }
 li:hover {
-  background-color: #222;
+  background-color: #222 !important;
 }
-li > img.square {
+li {
   --size: 80px;
 }
 
@@ -90,10 +161,8 @@ li > img.square {
 .song.slim > .meta {
   width: 100%;
 }
-.song.slim > img {
-  min-width: 32px;
-  width: 32px;
-  height: 32px;
+.song.slim > .square {
+  --size: 32px;
 }
 
 .matches {
@@ -109,15 +178,19 @@ li > img.square {
   align-items: center;
   display: flex;
   cursor: pointer;
-  transition-duration: 0.1s;
   padding-right: 4px;
+}
+.matches > tr.selected {
+  background-color: #353535;
+  color: white;
+  text-decoration: underline;
 }
 .matches > tr:hover {
   background-color: #444;
   color: white;
 }
 
-.matches img {
+.matches .square {
   --size: 20px;
   vertical-align: bottom;
 }
@@ -151,10 +224,6 @@ li.slim .source-duration {
 
 .song > .meta {
   width: 35%;
-}
-
-li:not(:first-child) {
-  border-top: 1px solid #444;
 }
 
 .hidden {

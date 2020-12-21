@@ -23,3 +23,7 @@ WindowBase openCenteredPopup(String url,
   return window.open(
       url, name, 'left=$left, top=$inset, width=$width, height=$height');
 }
+
+HtmlElement squareImage({String src}) => DivElement()
+  ..className = 'square'
+  ..append(ImageElement(src: src));

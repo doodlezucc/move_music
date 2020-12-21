@@ -1,20 +1,23 @@
 import 'dart:html';
 
 import 'dart/playlist.dart';
-import 'dart/spotify.dart' as spotify;
 import 'dart/youtube.dart' as yt;
 
-void main() {
-  List<PlaylistElement> playlists;
+Iterable<PlaylistElement> _allPlaylists;
+Iterable<PlaylistElement> get playlists =>
+    _allPlaylists.where((pl) => !pl.ignored);
 
+void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
-    playlists = (await yt.displayUserPlaylists()).toList();
+    _allPlaylists = (await yt.displayUserPlaylists()).toList();
   });
-  querySelector('#searchSpotify').onClick.listen((event) async {
-    await spotify.search('what once was');
+  querySelector('#submitPlaylists').onClick.listen((event) async {
+    for (var pl in playlists) {
+      await pl.displayAllMatches();
+    }
   });
-  querySelector('#authSpotify').onClick.listen((event) async {
+  querySelector('#move').onClick.listen((event) async {
     for (var pl in playlists) {
       await pl.move();
     }

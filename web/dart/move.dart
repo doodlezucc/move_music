@@ -1,8 +1,17 @@
 import 'dart:html';
 
 import 'duration.dart';
+import 'helpers.dart';
 import 'match.dart';
 import 'song.dart';
+
+final conflictCounter = querySelector('#conflicts');
+int _conflicts = 0;
+int get conflicts => _conflicts;
+set conflicts(int v) {
+  _conflicts = v;
+  conflictCounter.text = v.toString();
+}
 
 class MoveElement {
   final Song source;
@@ -18,7 +27,7 @@ class MoveElement {
   MoveElement(this.source) {
     e = LIElement()
       ..className = 'song'
-      ..append(ImageElement(src: source.coverArtUrl)..className = 'square')
+      ..append(squareImage(src: source.coverArtUrl))
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = source.name)
@@ -34,10 +43,12 @@ class MoveElement {
       });
   }
 
-  void selectMatch(SongMatch s) {
+  void selectMatch(SongMatch s, {userAction = true}) {
     var rows = e.querySelector('.matches').children;
     if (selected >= 0) {
       rows[selected].classes.remove('selected');
+    } else if (userAction) {
+      conflicts--;
     }
     selected = matches.indexOf(s);
     rows[selected].classes.add('selected');
@@ -49,11 +60,10 @@ class MoveElement {
     matches.forEach((m) {
       _createRow(m);
     });
-    if (matches.isEmpty) {
-      print('NO MATCHES FOUND');
-      print(source);
-    } else if (matches.first.similarity >= 0.95) {
-      selectMatch(matches.first);
+    if (matches.isNotEmpty && matches.first.similarity >= 0.95) {
+      selectMatch(matches.first, userAction: false);
+    } else {
+      conflicts++;
     }
     querySelector('#songs').append(e);
   }
@@ -65,8 +75,7 @@ class MoveElement {
     }
 
     var matchE = TableRowElement()
-      ..append(
-          cell(ImageElement(src: m.song.coverArtUrl)..className = 'square'))
+      ..append(cell(squareImage(src: m.song.coverArtUrl)))
       ..append(cell(m.song.name))
       ..append(cell(m.song.artists.join(', ')))
       ..append(cell(durationString(m.song.duration)))

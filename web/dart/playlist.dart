@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:googleapis/youtube/v3.dart';
 
 import 'duration.dart';
+import 'helpers.dart';
 import 'move.dart';
 import 'song.dart';
 import 'spotify.dart' as spotify;
@@ -18,17 +19,20 @@ abstract class PlaylistElement {
   final int songCount;
   final List<String> itemIds = [];
   HtmlElement e;
+  bool get ignored => e.classes.contains('ignored');
 
   PlaylistElement(
       this.id, this.name, this.description, this.thumbnailUrl, this.songCount) {
     e = LIElement()
       ..className = 'playlist'
-      ..append(ImageElement(src: thumbnailUrl)..className = 'square')
+      ..append(squareImage(src: thumbnailUrl))
       ..append(DivElement()
         ..className = 'meta'
         ..append(HeadingElement.h3()..text = name)
         ..append(SpanElement()..innerHtml = '$songCount Songs<br>$description'))
-      ..onClick.listen((event) => displayAllMatches());
+      ..onClick.listen((event) {
+        e.classes.toggle('ignored');
+      });
     querySelector('#playlists').append(e);
   }
 

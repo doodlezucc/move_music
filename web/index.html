@@ -15,12 +15,20 @@
 
 <body>
   <button id="authYT">Authenticate YouTube</button>
-  <button id="searchSpotify">Search Spotify</button>
-  <button id="authSpotify">Authenticate Spotify</button>
 
-  <ul id="playlists"></ul>
+  <div class="section">
+    <h2>Your Playlists</h2>
+    <p>Select the playlists you want to move to Spotify.</p>
+    <div id="playlists" class="grid"></div>
+    <button id="submitPlaylists">Next Step</button>
+  </div>
 
-  <ul id="songs"></ul>
+  <div class="section">
+    <h2>Conflicts</h2>
+    <p><span id="conflicts">0</span> conflicts.</p>
+    <ul id="songs"></ul>
+    <button id="move">Move songs</button>
+  </div>
 </body>
 
 </html>
