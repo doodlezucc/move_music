@@ -17,7 +17,7 @@ class MoveElement {
   final Song source;
   int selected = -1;
   List<SongMatch> matches;
-  SongMatch get match => matches[selected];
+  SongMatch get match => selected >= 0 ? matches[selected] : null;
   HtmlElement e;
   set _collapsed(bool v) {
     e.classes.toggle('slim', v);
