@@ -16,7 +16,7 @@ Future<Iterable<PlaylistElement>> retrievePlaylists() async {
     maxResults: 10,
   );
 
-  return playlists.items.map((e) => PlaylistElement.fromPlaylist(e));
+  return playlists.items.map((e) => YouTubePlaylistElement.fromPlaylist(e));
 }
 
 Future<String> getLikedVideoPlaylistId({bool safe = false}) async {
@@ -37,7 +37,7 @@ void initClient(bool immediate) async {
   yt = YoutubeApi(client);
 }
 
-Future<Iterable<PlaylistElement>> displayUserPlaylists() async {
+Future<Iterable<YouTubePlaylistElement>> displayUserPlaylists() async {
   var likedPlaylist = await yt.playlists.list(
     ['contentDetails'],
     id: [await getLikedVideoPlaylistId()],

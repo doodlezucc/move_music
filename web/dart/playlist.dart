@@ -10,7 +10,7 @@ import 'youtube.dart';
 
 final Map<String, MoveElement> allIdMoves = {};
 
-class PlaylistElement {
+abstract class PlaylistElement {
   final String id;
   final String name;
   final String description;
@@ -47,18 +47,43 @@ class PlaylistElement {
   }
 
   Future<void> move() async {
-    print('Not implemented yet. lol.');
+    var matchedSongs = itemIds
+        .map((id) => allIdMoves[id].match?.song)
+        .where((song) => song != null);
+
+    if (matchedSongs.isEmpty) {
+      print('Playlist $name will not be moved because no matches were found.');
+      return;
+    }
+
+    print('Moving $name...');
+    await _move(matchedSongs);
+    print('Moved $name!');
   }
+
+  Future<void> _move(Iterable<Song> songs);
 
   PlaylistElement.fromPlaylist(Playlist pl)
       : this(pl.id, pl.snippet.title, pl.snippet.description,
             pl.snippet.thumbnails.medium.url, pl.contentDetails.itemCount);
 
+  Future<Iterable<Song>> getAllSongs();
+}
+
+class YouTubePlaylistElement extends PlaylistElement {
+  YouTubePlaylistElement._likes(int songCount)
+      : super('LL', 'Liked Songs', '', 'style/likes.png', songCount);
+
+  YouTubePlaylistElement.fromPlaylist(Playlist pl)
+      : super(pl.id, pl.snippet.title, pl.snippet.description,
+            pl.snippet.thumbnails.medium.url, pl.contentDetails.itemCount);
+
+  @override
   Future<Iterable<Song>> getAllSongs() async {
-    return (await _getAllVideos()).map((v) => _vidToSong(v));
+    return (await getAllVideos()).map((v) => vidToSong(v));
   }
 
-  Future<VideoListResponse> _getVideosOnPage(String pageToken) async {
+  Future<VideoListResponse> getVideosOnPage(String pageToken) async {
     var response = await yt.playlistItems.list(
       ['contentDetails'],
       playlistId: id,
@@ -76,11 +101,11 @@ class PlaylistElement {
       ..nextPageToken = response.nextPageToken;
   }
 
-  Future<List<Video>> _getAllVideos(
+  Future<List<Video>> getAllVideos(
       {String pageToken,
       bool musicOnly = true,
       bool firstPageOnly = false}) async {
-    var videos = await _getVideosOnPage(pageToken);
+    var videos = await getVideosOnPage(pageToken);
     var output = videos.items;
 
     if (musicOnly) {
@@ -101,29 +126,34 @@ class PlaylistElement {
     print('Got page $pageToken');
 
     if (!firstPageOnly && videos.nextPageToken != null) {
-      output.addAll(await _getAllVideos(pageToken: videos.nextPageToken));
+      output.addAll(await getAllVideos(pageToken: videos.nextPageToken));
     }
 
     return output;
   }
-}
-
-Song _vidToSong(dynamic v) {
-  return Song(
-    name: v.snippet.title,
-    artists: [v.snippet.channelTitle],
-    id: v.id,
-    coverArtUrl: v.snippet.thumbnails.medium.url,
-    duration: parseIsoDuration(v.contentDetails.duration),
-  );
-}
-
-class LikesPlaylistElement extends PlaylistElement {
-  LikesPlaylistElement(int songCount)
-      : super('LL', 'Liked Songs', '', 'style/likes.png', songCount);
 
   @override
-  Future<VideoListResponse> _getVideosOnPage(String pageToken) async {
+  Future<void> _move(Iterable<Song> matchedSongs) {
+    // TODO: implement move
+    throw UnimplementedError();
+  }
+
+  static Song vidToSong(dynamic v) {
+    return Song(
+      name: v.snippet.title,
+      artists: [v.snippet.channelTitle],
+      id: v.id,
+      coverArtUrl: v.snippet.thumbnails.medium.url,
+      duration: parseIsoDuration(v.contentDetails.duration),
+    );
+  }
+}
+
+class LikesPlaylistElement extends YouTubePlaylistElement {
+  LikesPlaylistElement(int songCount) : super._likes(songCount);
+
+  @override
+  Future<VideoListResponse> getVideosOnPage(String pageToken) async {
     return await yt.videos.list(
       ['snippet', 'contentDetails'],
       myRating: 'like',
@@ -133,10 +163,8 @@ class LikesPlaylistElement extends PlaylistElement {
   }
 
   @override
-  Future<void> move() async {
-    print('Moving all liked songs');
-    var ids = itemIds.where((id) => allIdMoves[id].match != null);
+  Future<void> _move(Iterable<Song> matchedSongs) async {
+    var ids = matchedSongs.map((song) => song.id);
     await spotify.likeTracks(ids);
-    print('Moved $name!');
   }
 }
