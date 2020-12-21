@@ -410,9 +410,11 @@ packages:
   spotify:
     dependency: "direct main"
     description:
-      name: spotify
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "1fb7f4cad351c13ced1931248e0aefe9535630f0"
+      url: "https://github.com/doodlezucc/spotify-dart.git"
+    source: git
     version: "0.4.0"
   stack_trace:
     dependency: transitive

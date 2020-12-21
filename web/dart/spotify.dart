@@ -3,11 +3,13 @@ import 'dart:html';
 
 import 'package:spotify/spotify.dart';
 
+import 'helpers.dart';
 import 'song.dart';
 
 SpotifyApiCredentials credentials;
 SpotifyApi spotify;
 bool gotUserGrant = false;
+User user;
 
 Future<void> ensureCredentials() async {
   if (spotify != null) return;
@@ -47,7 +49,7 @@ Future<bool> ensureGrant() async {
   var redirectUri = 'http://localhost:8080/spotify/callback.html';
   var authUri = grant.getAuthorizationUrl(
     Uri.parse(redirectUri),
-    scopes: ['user-library-modify'],
+    scopes: ['user-library-modify', 'playlist-modify-private'],
   );
 
   var completer = Completer<bool>();
@@ -75,7 +77,6 @@ Future<bool> ensureGrant() async {
       // The pop-up message is defined as its window location (a URL)
       // in web/spotify/callback.html
       var spotifyParams = Uri.parse(e.data).queryParameters;
-      print(spotifyParams);
 
       if (spotifyParams.containsKey('error')) {
         print('Spotify Auth Error: ' + spotifyParams['error']);
@@ -83,23 +84,42 @@ Future<bool> ensureGrant() async {
       }
 
       spotify = SpotifyApi.fromAuthCodeGrant(grant, e.data);
-      gotUserGrant = true;
-      completer.complete(true);
+      spotify.me.get().then((value) {
+        user = value;
+        gotUserGrant = true;
+        completer.complete(true);
+      });
     }
   });
 
   return completer.future;
 }
 
-WindowBase openCenteredPopup(String url,
-    {String name = 'Popup', int width = 800}) {
-  var inset = 150;
-  var left = (window.outerWidth - width) / 2;
-  var height = window.outerHeight - inset * 2;
-
-  return window.open(
-      url, name, 'left=$left, top=$inset, width=$width, height=$height');
+Future<void> createPlaylist(
+    String name, String description, Iterable<String> itemIds) async {
+  if (await ensureGrant()) {
+    var playlist = await spotify.playlists.createPlaylist(
+      user.id,
+      name,
+      public: false,
+      description: description,
+    );
+    print('Playlist created');
+    await for (var done in addIdsToPlaylist(itemIds, playlist.id)) {
+      print('$done songs added to playlist');
+    }
+  }
 }
+
+Stream<int> addIdsToPlaylist(Iterable<String> ids, String playlistId) =>
+    batchOperation(
+      ids,
+      batchSize: 100,
+      operation: (items) => spotify.playlists.addTracks(
+        items.map((id) => 'spotify:track:$id').toList(),
+        playlistId,
+      ),
+    );
 
 Future<void> likeTracks(Iterable<String> ids,
     {bool orderMatters = false}) async {
@@ -117,10 +137,12 @@ Future<void> likeTracks(Iterable<String> ids,
         await Future.delayed(Duration(milliseconds: 1000));
       }
     } else {
-      var batchSize = 50;
-      for (var i = 0; i < ids.length; i += batchSize) {
-        await spotify.tracks.me.save(idList.sublist(i));
-        print('Liked ${i + batchSize} tracks.');
+      await for (var done in batchOperation(
+        idList,
+        batchSize: 50,
+        operation: (ids) => spotify.tracks.me.save(ids),
+      )) {
+        print('$done songs liked.');
       }
     }
   } else {

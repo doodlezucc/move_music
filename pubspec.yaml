@@ -9,7 +9,8 @@ environment:
 dependencies:
   googleapis: any
   googleapis_auth: any
-  spotify: ^0.4.0
+  spotify:
+    git: https://github.com/doodlezucc/spotify-dart.git
   string_similarity: ^1.1.0
   meta: ^1.2.4
 

@@ -133,9 +133,9 @@ class YouTubePlaylistElement extends PlaylistElement {
   }
 
   @override
-  Future<void> _move(Iterable<Song> matchedSongs) {
-    // TODO: implement move
-    throw UnimplementedError();
+  Future<void> _move(Iterable<Song> matchedSongs) async {
+    await spotify.createPlaylist(
+        name, description, matchedSongs.map((e) => e.id));
   }
 
   static Song vidToSong(dynamic v) {
