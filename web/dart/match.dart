@@ -21,12 +21,19 @@ class SongMatch {
 
 Future<List<SongMatch>> searchSongMatches(Song s) async {
   var query = '${s.name} ${s.artists.first}';
-  var searchResults = await search(query);
+  var searchMatches = (await search(query)).map((e) => SongMatch(s, e));
 
-  if (searchResults.isEmpty) {
-    searchResults = await search(query.replaceAll(RegExp(r'\(([^)]+)\)'), ''));
+  // True if no search results are promising
+  var suspicious = !(searchMatches.any((sm) => sm.similarity > 0.7));
+
+  if (suspicious) {
+    // Remove stuff inside parantheses, might give better results
+    var queryNew = query.replaceAll(RegExp(r'\(([^)]+)\)'), '');
+    if (queryNew != query) {
+      searchMatches = (await search(queryNew)).map((e) => SongMatch(s, e));
+    }
   }
 
-  return searchResults.map((e) => SongMatch(s, e)).toList()
+  return searchMatches.toList()
     ..sort((a, b) => b.similarity.compareTo(a.similarity));
 }
