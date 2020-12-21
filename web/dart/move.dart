@@ -19,6 +19,7 @@ class MoveElement {
   List<SongMatch> matches;
   SongMatch get match => selected >= 0 ? matches[selected] : null;
   HtmlElement e;
+  bool get _collapsed => e.classes.contains('slim');
   set _collapsed(bool v) {
     e.classes.toggle('slim', v);
     e.querySelector('.meta').classes.toggle('slim', v);
@@ -38,7 +39,9 @@ class MoveElement {
       ..append(TableElement()..className = 'matches')
       ..onClick.listen((event) {
         if (!(event.target as HtmlElement).matchesWithAncestors('table')) {
-          _collapsed = false;
+          if (_collapsed || selected >= 0) {
+            _collapsed = !_collapsed;
+          }
         }
       });
   }
