@@ -8,13 +8,15 @@ import 'song.dart';
 import 'spotify.dart' as spotify;
 import 'youtube.dart';
 
+final Map<String, MoveElement> allIdMoves = {};
+
 class PlaylistElement {
   final String id;
   final String name;
   final String description;
   final String thumbnailUrl;
   final int songCount;
-  final List<MoveElement> moves = [];
+  final List<String> itemIds = [];
   HtmlElement e;
 
   PlaylistElement(
@@ -35,9 +37,12 @@ class PlaylistElement {
     var songs = await getAllSongs();
 
     for (var song in songs) {
-      var moveElem = MoveElement(song);
-      await moveElem.findSpotifyMatches();
-      moves.add(moveElem);
+      if (!allIdMoves.containsKey(song.id)) {
+        var moveElem = MoveElement(song);
+        allIdMoves[song.id] = moveElem;
+        await moveElem.findSpotifyMatches();
+      }
+      itemIds.add(song.id);
     }
   }
 
@@ -130,7 +135,7 @@ class LikesPlaylistElement extends PlaylistElement {
   @override
   Future<void> move() async {
     print('Moving all liked songs');
-    var ids = moves.where((m) => m.match != null).map((e) => e.match.song.id);
+    var ids = itemIds.where((id) => allIdMoves[id].match != null);
     await spotify.likeTracks(ids);
     print('Moved $name!');
   }
