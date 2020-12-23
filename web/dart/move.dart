@@ -15,7 +15,7 @@ set conflicts(int v) {
 
 class MoveElement {
   final Song source;
-  int selected = -1;
+  int selected = 0;
   List<SongMatch> matches;
   SongMatch get match => selected >= 0 ? matches[selected] : null;
   HtmlElement e;
@@ -25,18 +25,26 @@ class MoveElement {
     e.querySelector('.meta').classes.toggle('slim', v);
   }
 
+  List<Element> get rows =>
+      e.querySelector('.matches').children.skip(1).toList();
+
   MoveElement(this.source) {
     e = LIElement()
-      ..className = 'song'
+      ..className = 'song slim'
       ..append(squareImage(src: source.coverArtUrl))
       ..append(DivElement()
-        ..className = 'meta'
+        ..className = 'meta slim'
         ..append(HeadingElement.h3()..text = source.name)
         ..append(SpanElement()..text = source.artists.join(', '))
         ..append(SpanElement()
           ..text = durationString(source.duration)
           ..className = 'source-duration'))
-      ..append(TableElement()..className = 'matches')
+      ..append(TableElement()
+        ..className = 'matches'
+        ..append(InputElement(type: 'text')
+          ..className = 'search'
+          ..placeholder = source.toQuery().toLowerCase()
+          ..onKeyDown.listen(onSearchKeyDown)))
       ..onClick.listen((event) {
         if (!(event.target as HtmlElement).matchesWithAncestors('table')) {
           if (_collapsed || selected >= 0) {
@@ -44,10 +52,17 @@ class MoveElement {
           }
         }
       });
+    querySelector('#songs').append(e);
+  }
+
+  void onSearchKeyDown(KeyboardEvent e) {
+    if (e.keyCode == 13) {
+      var query = (e.target as InputElement).value;
+      findSpotifyMatches(query: query.isNotEmpty ? query : null);
+    }
   }
 
   void selectMatch(SongMatch s, {userAction = true}) {
-    var rows = e.querySelector('.matches').children;
     if (selected >= 0) {
       rows[selected].classes.remove('selected');
     } else if (userAction) {
@@ -58,17 +73,23 @@ class MoveElement {
     _collapsed = true;
   }
 
-  Future<void> findSpotifyMatches() async {
-    matches = await searchSongMatches(source);
+  Future<void> findSpotifyMatches({String query}) async {
+    rows.forEach((row) {
+      row.remove();
+    });
+    e.classes.add('searching');
+    matches = await searchSongMatches(source, query: query);
+    e.classes.remove('searching');
     matches.forEach((m) {
       _createRow(m);
     });
     if (matches.isNotEmpty && matches.first.similarity >= 0.95) {
       selectMatch(matches.first, userAction: false);
-    } else {
+    } else if (selected >= 0) {
       conflicts++;
+      selected = -1;
+      _collapsed = false;
     }
-    querySelector('#songs').append(e);
   }
 
   void _createRow(SongMatch m) {

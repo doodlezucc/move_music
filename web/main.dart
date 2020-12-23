@@ -1,6 +1,8 @@
 import 'dart:html';
 
+import 'dart/move.dart';
 import 'dart/playlist.dart';
+import 'dart/song.dart';
 import 'dart/youtube.dart' as yt;
 
 Iterable<PlaylistElement> _allPlaylists;
@@ -29,8 +31,41 @@ void main() {
       _reloadCss();
     }
   });
+
+  _testMoveElems();
 }
 
 void _reloadCss() {
   querySelectorAll<LinkElement>('link').forEach((link) => link.href += '');
+}
+
+void _testMoveElems() {
+  MoveElement(Song(
+      name: 'Cool With You',
+      artists: ["Her's"],
+      id: '',
+      coverArtUrl: 'style/likes.png',
+      duration: Duration(minutes: 2, seconds: 51)))
+    ..findSpotifyMatches();
+  MoveElement(YouTubeSong(
+      name: 'Her\'s - "Cool With You"',
+      artists: ['random youtube channel'], // missing YTM " - Topic" suffix
+      id: '',
+      coverArtUrl: 'style/likes.png',
+      duration: Duration(minutes: 2, seconds: 51)))
+    ..findSpotifyMatches();
+  MoveElement(YouTubeSong(
+      name: 'still feel.',
+      artists: ['half·alive - Topic'],
+      id: '',
+      coverArtUrl: 'style/likes.png',
+      duration: Duration(hours: 1, seconds: 123)))
+    ..findSpotifyMatches();
+  MoveElement(YouTubeSong(
+      name: 'jkashfkjahsf',
+      artists: ['random youtube channel'],
+      id: '',
+      coverArtUrl: 'style/likes.png',
+      duration: Duration(minutes: 2, seconds: 51)))
+    ..findSpotifyMatches();
 }

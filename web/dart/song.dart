@@ -17,6 +17,8 @@ class Song {
   })  : _artists = artists,
         duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil());
 
+  String toQuery() => '$name ${artists.join(' ')}';
+
   @override
   String toString() => artists.join(', ') + ' - "' + name + '"';
 }
@@ -39,10 +41,13 @@ class YouTubeSong extends Song {
   static String _removeTopic(String s) =>
       s.endsWith(' - Topic') ? s.substring(0, s.length - 8) : s;
 
-  Iterable<String> get artistsAll => _artists.map((a) => _removeTopic(a));
-
   @override
-  Iterable<String> get artists => _artists
+  Iterable<String> get artists => _artists.map((a) => _removeTopic(a));
+
+  Iterable<String> get artistsReduced => _artists
       .where((a) => a.endsWith(' - Topic'))
       .map((a) => a.substring(0, a.length - 8));
+
+  @override
+  String toQuery() => '$name ${artistsReduced.join(' ')}';
 }

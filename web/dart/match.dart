@@ -19,9 +19,8 @@ class SongMatch {
   }
 }
 
-Future<List<SongMatch>> searchSongMatches(Song s) async {
-  var query = '${s.name} ${s.artists.join(' ')}';
-  print(query);
+Future<List<SongMatch>> searchSongMatches(Song s, {String query}) async {
+  query = query ?? s.toQuery();
   var searchMatches = (await search(query)).map((e) => SongMatch(s, e));
 
   // True if no search results are promising
