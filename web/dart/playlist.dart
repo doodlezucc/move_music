@@ -142,8 +142,8 @@ class YouTubePlaylistElement extends PlaylistElement {
         name, description, matchedSongs.map((e) => e.id));
   }
 
-  static Song vidToSong(dynamic v) {
-    return Song(
+  static YouTubeSong vidToSong(dynamic v) {
+    return YouTubeSong(
       name: v.snippet.title,
       artists: [v.snippet.channelTitle],
       id: v.id,
