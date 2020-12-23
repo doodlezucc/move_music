@@ -247,6 +247,16 @@ li {
   padding-left: 15px;
 }
 
+.matches > .status {
+  display: grid;
+  height: 100%;
+  align-items: center;
+  font-weight: bold;
+}
+.matches > tr ~ .status {
+  display: none;
+}
+
 li.slim .source-duration {
   display: none;
 }

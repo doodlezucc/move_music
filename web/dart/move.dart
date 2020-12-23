@@ -16,17 +16,17 @@ set conflicts(int v) {
 class MoveElement {
   final Song source;
   int selected = 0;
-  List<SongMatch> matches;
+  List<SongMatch> matches = [];
   SongMatch get match => selected >= 0 ? matches[selected] : null;
   HtmlElement e;
+  SpanElement status;
   bool get _collapsed => e.classes.contains('slim');
   set _collapsed(bool v) {
     e.classes.toggle('slim', v);
     e.querySelector('.meta').classes.toggle('slim', v);
   }
 
-  List<Element> get rows =>
-      e.querySelector('.matches').children.skip(1).toList();
+  List<Element> get rows => e.querySelectorAll('.matches > tr').toList();
 
   MoveElement(this.source) {
     e = LIElement()
@@ -44,7 +44,8 @@ class MoveElement {
         ..append(InputElement(type: 'text')
           ..className = 'search'
           ..placeholder = source.toQuery().toLowerCase()
-          ..onKeyDown.listen(onSearchKeyDown)))
+          ..onKeyDown.listen(onSearchKeyDown))
+        ..append(status = SpanElement()..className = 'status'))
       ..onClick.listen((event) {
         if (!(event.target as HtmlElement).matchesWithAncestors('table')) {
           if (_collapsed || selected >= 0) {
@@ -74,15 +75,16 @@ class MoveElement {
   }
 
   Future<void> findSpotifyMatches({String query}) async {
+    query = query ?? source.toQuery();
     rows.forEach((row) {
       row.remove();
     });
-    e.classes.add('searching');
+    status.text = 'Searching...';
     matches = await searchSongMatches(source, query: query);
-    e.classes.remove('searching');
     matches.forEach((m) {
       _createRow(m);
     });
+    status.text = 'No results found for "$query"';
     if (matches.isNotEmpty && matches.first.similarity >= 0.95) {
       selectMatch(matches.first, userAction: false);
     } else if (selected >= 0) {
@@ -106,6 +108,7 @@ class MoveElement {
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
       ..onClick.listen((event) => selectMatch(m));
 
-    e.querySelector('.matches').append(matchE);
+    var children = e.querySelector('.matches').children;
+    children.insert(children.length - 1, matchE);
   }
 }
