@@ -17,7 +17,7 @@ class Song {
   })  : _artists = artists,
         duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil());
 
-  String toQuery() => _toQuery().trim();
+  String toQuery() => _toQuery().trim().toLowerCase();
 
   String _toQuery() => '$name ${artists.join(' ')}';
 

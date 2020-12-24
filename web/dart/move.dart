@@ -43,7 +43,7 @@ class MoveElement {
         ..className = 'matches'
         ..append(InputElement(type: 'text')
           ..className = 'search'
-          ..placeholder = source.toQuery().toLowerCase()
+          ..placeholder = source.toQuery()
           ..onKeyDown.listen(onSearchKeyDown))
         ..append(status = SpanElement()..className = 'status'))
       ..onClick.listen((event) {
