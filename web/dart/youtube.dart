@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:googleapis/youtube/v3.dart';
 import 'package:googleapis_auth/auth_browser.dart';
 
+import 'artist.dart';
 import 'playlist.dart';
 
 final clientId = ClientId(
@@ -13,7 +16,7 @@ Future<Iterable<PlaylistElement>> retrievePlaylists() async {
   var playlists = await yt.playlists.list(
     ['snippet', 'contentDetails'],
     mine: true,
-    maxResults: 10,
+    maxResults: 50,
   );
 
   return playlists.items.map((e) => YouTubePlaylistElement.fromPlaylist(e));
@@ -49,4 +52,45 @@ Future<Iterable<YouTubePlaylistElement>> displayUserPlaylists() async {
     LikesPlaylistElement(likeCount),
     ...await retrievePlaylists(),
   ];
+}
+
+Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
+  var responseSubs = await yt.subscriptions.list(
+    ['snippet'],
+    order: 'alphabetical',
+    mine: true,
+    maxResults: 10,
+    pageToken: pageToken,
+  );
+  var responseChannels = await yt.channels.list(
+    ['topicDetails'],
+    id: responseSubs.items.map((e) => e.snippet.resourceId.channelId).toList(),
+    maxResults: 10,
+  );
+
+  var validChannels = responseSubs.items.where((s) => responseChannels.items
+      .singleWhere((ch) {
+        return s.snippet.resourceId.channelId == ch.id;
+      })
+      .topicDetails
+      .topicIds
+      .contains('/m/04rlf')); // Channel contains "Music" topic
+
+  yield* Stream.fromIterable(validChannels.map((e) => Artist(
+        name: e.snippet.title,
+        pictureUrl: e.snippet.thumbnails.medium.url,
+      )));
+
+  if (responseChannels.nextPageToken != null) {
+    yield* retrieveSubscriptions(pageToken: responseChannels.nextPageToken);
+  }
+}
+
+Future<Iterable<Artist>> displayFollowedArtists() async {
+  var list = <Artist>[];
+  await for (var artist in retrieveSubscriptions()) {
+    print(artist.name);
+    list.add(artist);
+  }
+  return list;
 }

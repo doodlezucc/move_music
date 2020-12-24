@@ -12,7 +12,8 @@ Iterable<PlaylistElement> get playlists =>
 void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
-    _allPlaylists = (await yt.displayUserPlaylists()).toList();
+    await yt.displayFollowedArtists();
+    //_allPlaylists = (await yt.displayUserPlaylists()).toList();
   });
   querySelector('#submitPlaylists').onClick.listen((event) async {
     for (var pl in playlists) {
