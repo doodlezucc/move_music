@@ -32,7 +32,10 @@ void main() {
     }
   });
 
-  _testMoveElems();
+  var test = false;
+  if (test) {
+    _testMoveElems();
+  }
 }
 
 void _reloadCss() {
@@ -57,6 +60,13 @@ void _testMoveElems() {
   MoveElement(YouTubeSong(
       name: 'still feel.',
       artists: ['half·alive - Topic'],
+      id: '',
+      coverArtUrl: 'style/likes.png',
+      duration: Duration(hours: 1, seconds: 123)))
+    ..findSpotifyMatches();
+  MoveElement(YouTubeSong(
+      name: '爱多甜蜜',
+      artists: ['刘初寻（二逗）＋曾溢（小五） & 曾溢'],
       id: '',
       coverArtUrl: 'style/likes.png',
       duration: Duration(hours: 1, seconds: 123)))

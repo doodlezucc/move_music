@@ -17,7 +17,9 @@ class Song {
   })  : _artists = artists,
         duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil());
 
-  String toQuery() => '$name ${artists.join(' ')}';
+  String toQuery() => _toQuery().trim();
+
+  String _toQuery() => '$name ${artists.join(' ')}';
 
   @override
   String toString() => artists.join(', ') + ' - "' + name + '"';
@@ -49,5 +51,5 @@ class YouTubeSong extends Song {
       .map((a) => a.substring(0, a.length - 8));
 
   @override
-  String toQuery() => '$name ${artistsReduced.join(' ')}';
+  String _toQuery() => '$name ${artistsReduced.join(' ')}';
 }

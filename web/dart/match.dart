@@ -9,13 +9,17 @@ class SongMatch {
   SongMatch(Song query, this.song)
       : similarity = calculateSimilarity(query, song);
 
+  static String trim(Song s) {
+    return (s.name + ' ' + s.artists.join())
+        .toLowerCase()
+        .replaceAll(
+            RegExp(r"[^\p{L}0-9' ]", unicode: true), // special characters
+            ' ') // to spaces
+        .replaceAll(RegExp(r'  +'), ' '); // multiple spaces to one
+  }
+
   static double calculateSimilarity(Song a, Song b) {
-    return (a.name.toLowerCase().similarityTo(b.name.toLowerCase()) +
-            a.artists
-                .join()
-                .toLowerCase()
-                .similarityTo(b.artists.join().toLowerCase())) /
-        2;
+    return trim(a).similarityTo(trim(b));
   }
 }
 
