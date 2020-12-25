@@ -63,7 +63,7 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
     pageToken: pageToken,
   );
   var responseChannels = await yt.channels.list(
-    ['topicDetails'],
+    ['topicDetails', 'statistics'],
     id: responseSubs.items.map((e) => e.snippet.resourceId.channelId).toList(),
     maxResults: 10,
   );
@@ -76,10 +76,16 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
       .topicIds
       .contains('/m/04rlf')); // Channel contains "Music" topic
 
-  yield* Stream.fromIterable(validChannels.map((e) => Artist(
-        id: e.snippet.resourceId.channelId,
-        name: e.snippet.title,
-        pictureUrl: e.snippet.thumbnails.medium.url,
+  yield* Stream.fromIterable(validChannels.map((r) => Artist(
+        id: r.snippet.resourceId.channelId,
+        name: r.snippet.title,
+        pictureUrl: r.snippet.thumbnails.medium.url,
+        popularity: int.parse(responseChannels.items
+            .singleWhere((ch) {
+              return r.snippet.resourceId.channelId == ch.id;
+            })
+            .statistics
+            .viewCount),
       )));
 
   if (responseChannels.nextPageToken != null) {
@@ -90,6 +96,7 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
 Future<Iterable<MoveElement>> displayFollowedArtistsMatches() async {
   var list = <MoveElement>[];
   await for (var artist in retrieveSubscriptions()) {
+    print('${artist.name} | ${artist.popularity}');
     var match = MoveElement(artist);
     unawaited(match.findSpotifyMatches());
     list.add(match);

@@ -16,9 +16,14 @@ class Song extends Moveable {
     @required String id,
     @required String coverArtUrl,
     @required Duration duration,
+    int popularity = 0,
   })  : _artists = artists,
         duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil()),
-        super(id: id, name: name, pictureUrl: coverArtUrl);
+        super(
+            id: id,
+            name: name,
+            pictureUrl: coverArtUrl,
+            popularity: popularity);
 
   @override
   String toQuery() => _toQuery().trim().toLowerCase();
@@ -47,12 +52,14 @@ class YouTubeSong extends Song {
     @required String id,
     @required String coverArtUrl,
     @required Duration duration,
+    int views = 0,
   }) : super(
           name: name,
           artists: artists,
           id: id,
           coverArtUrl: coverArtUrl,
           duration: duration,
+          popularity: views,
         );
 
   static String _removeTopic(String s) =>

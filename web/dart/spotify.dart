@@ -30,12 +30,13 @@ Future<Iterable<Song>> searchSong(String query) async {
 
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
-  return tracks.map((e) => Song(
-        name: e.name,
-        artists: e.artists.map((e) => e.name),
-        id: e.id,
-        coverArtUrl: e.album.images.first.url,
-        duration: e.duration,
+  return tracks.map((s) => Song(
+        name: s.name,
+        artists: s.artists.map((e) => e.name),
+        id: s.id,
+        coverArtUrl: s.album.images.first.url,
+        duration: s.duration,
+        popularity: s.popularity,
       ));
 }
 
@@ -49,7 +50,7 @@ Future<Iterable<artist.Artist>> searchArtist(String query) async {
         id: a.id,
         name: a.name,
         pictureUrl: a.images.isNotEmpty ? a.images.first.url : '',
-        popularity: a.popularity / 100,
+        popularity: a.popularity,
       ));
 }
 

@@ -96,7 +96,7 @@ class YouTubePlaylistElement extends PlaylistElement {
     );
     // make Videos out of PlaylistItems
     return (await yt.videos.list(
-      ['snippet', 'contentDetails'],
+      ['snippet', 'contentDetails', 'statistics'],
       id: response.items
           .map((plItem) => plItem.contentDetails.videoId)
           .toList(),
@@ -142,13 +142,14 @@ class YouTubePlaylistElement extends PlaylistElement {
         name, description, matchedSongs.map((e) => e.id));
   }
 
-  static YouTubeSong vidToSong(dynamic v) {
+  static YouTubeSong vidToSong(Video v) {
     return YouTubeSong(
       name: v.snippet.title,
       artists: [v.snippet.channelTitle],
       id: v.id,
       coverArtUrl: v.snippet.thumbnails.medium.url,
       duration: parseIsoDuration(v.contentDetails.duration),
+      views: int.parse(v.statistics.viewCount),
     );
   }
 }
@@ -159,7 +160,7 @@ class LikesPlaylistElement extends YouTubePlaylistElement {
   @override
   Future<VideoListResponse> getVideosOnPage(String pageToken) async {
     return await yt.videos.list(
-      ['snippet', 'contentDetails'],
+      ['snippet', 'contentDetails', 'statistics'],
       myRating: 'like',
       maxResults: 50,
       pageToken: pageToken,

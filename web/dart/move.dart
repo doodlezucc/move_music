@@ -17,7 +17,7 @@ abstract class Moveable {
   final String id;
   final String name;
   final String pictureUrl;
-  final double popularity;
+  final int popularity;
 
   Moveable(
       {@required this.id,
@@ -96,7 +96,14 @@ class MoveElement<T extends Moveable> {
       row.remove();
     });
     status.text = 'Searching...';
-    matches = await searchMatches(source, query: query);
+    matches = (await searchMatches(source, query: query)).toList()
+      ..sort((a, b) {
+        var similarity = b.similarity.compareTo(a.similarity);
+        if (similarity == 0) {
+          return b.target.popularity.compareTo(a.target.popularity);
+        }
+        return similarity;
+      });
     matches.forEach((m) {
       _createRow(m);
     });

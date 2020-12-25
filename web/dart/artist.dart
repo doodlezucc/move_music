@@ -7,7 +7,7 @@ class Artist extends Moveable {
     @required String id,
     @required String name,
     @required String pictureUrl,
-    double popularity = 1,
+    @required int popularity,
   }) : super(
           id: id,
           name: name,
@@ -18,6 +18,6 @@ class Artist extends Moveable {
   @override
   String toQuery() => name.trim().toLowerCase();
 
-  @override
-  Iterable<String> meta() => [(popularity * 100).round().toString()];
+  // @override
+  // Iterable<String> meta() => [popularity.toString()];
 }

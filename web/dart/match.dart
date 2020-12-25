@@ -26,7 +26,7 @@ Future<Iterable<M>> _searchMoveable<M extends Moveable>(
   return await (m is Song ? searchSong(query) : searchArtist(query));
 }
 
-Future<List<Match>> searchMatches(Moveable m, {String query}) async {
+Future<Iterable<Match>> searchMatches(Moveable m, {String query}) async {
   query = query ?? m.toQuery();
   var searchMatches = (await _searchMoveable(m, query)).map((e) => Match(m, e));
 
@@ -42,8 +42,5 @@ Future<List<Match>> searchMatches(Moveable m, {String query}) async {
     }
   }
 
-  return searchMatches.toList()
-    ..sort((a, b) =>
-        b.similarity.compareTo(a.similarity) +
-        b.target.popularity.compareTo(a.target.popularity));
+  return searchMatches;
 }
