@@ -43,5 +43,7 @@ Future<List<Match>> searchMatches(Moveable m, {String query}) async {
   }
 
   return searchMatches.toList()
-    ..sort((a, b) => b.similarity.compareTo(a.similarity));
+    ..sort((a, b) =>
+        b.similarity.compareTo(a.similarity) +
+        b.target.popularity.compareTo(a.target.popularity));
 }

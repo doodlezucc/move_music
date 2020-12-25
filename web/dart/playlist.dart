@@ -49,9 +49,9 @@ abstract class PlaylistElement {
   }
 
   Future<void> move() async {
-    var matchedSongs = itemIds
+    var matchedSongs = List<Song>.from(itemIds
         .map((id) => allIdMoves[id].match?.target)
-        .where((song) => song != null);
+        .where((song) => song != null));
 
     if (matchedSongs.isEmpty) {
       print('Playlist $name will not be moved because no matches were found.');

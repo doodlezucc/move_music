@@ -17,8 +17,13 @@ abstract class Moveable {
   final String id;
   final String name;
   final String pictureUrl;
+  final double popularity;
 
-  Moveable({@required this.id, @required this.name, @required this.pictureUrl});
+  Moveable(
+      {@required this.id,
+      @required this.name,
+      @required this.pictureUrl,
+      this.popularity = 1});
 
   String toQuery();
 
