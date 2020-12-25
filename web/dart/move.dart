@@ -79,10 +79,10 @@ class MoveElement<T extends Moveable> {
     }
   }
 
-  void selectMatch(Match s, {userAction = true}) {
+  void selectMatch(Match s) {
     if (selected >= 0) {
       rows[selected].classes.remove('selected');
-    } else if (userAction) {
+    } else {
       conflicts--;
     }
     selected = matches.indexOf(s);
@@ -109,7 +109,7 @@ class MoveElement<T extends Moveable> {
     });
     status.text = 'No results found for "$query"';
     if (matches.isNotEmpty && matches.first.similarity >= 0.95) {
-      selectMatch(matches.first, userAction: false);
+      selectMatch(matches.first);
     } else if (selected >= 0) {
       conflicts++;
       selected = -1;
