@@ -1,6 +1,5 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:googleapis_auth/auth_browser.dart';
-import 'package:pedantic/pedantic.dart';
 
 import 'artist.dart';
 import 'move.dart';
@@ -12,14 +11,20 @@ final clientId = ClientId(
 final scopes = [YoutubeApi.YoutubeForceSslScope];
 YoutubeApi yt;
 
-Future<Iterable<PlaylistElement>> retrievePlaylists() async {
-  var playlists = await yt.playlists.list(
+Stream<YouTubePlaylistElement> retrievePlaylists({String pageToken}) async* {
+  var response = await yt.playlists.list(
     ['snippet', 'contentDetails'],
     mine: true,
     maxResults: 50,
+    pageToken: pageToken,
   );
 
-  return playlists.items.map((e) => YouTubePlaylistElement.fromPlaylist(e));
+  yield* Stream.fromIterable(
+      response.items.map((e) => YouTubePlaylistElement.fromPlaylist(e)));
+
+  if (response.nextPageToken != null) {
+    yield* retrievePlaylists(pageToken: response.nextPageToken);
+  }
 }
 
 Future<String> getLikedVideoPlaylistId({bool safe = false}) async {
@@ -40,7 +45,7 @@ void initClient(bool immediate) async {
   yt = YoutubeApi(client);
 }
 
-Future<Iterable<YouTubePlaylistElement>> displayUserPlaylists() async {
+Stream<YouTubePlaylistElement> displayUserPlaylists() async* {
   var likedPlaylist = await yt.playlists.list(
     ['contentDetails'],
     id: [await getLikedVideoPlaylistId()],
@@ -48,10 +53,8 @@ Future<Iterable<YouTubePlaylistElement>> displayUserPlaylists() async {
 
   var likeCount = likedPlaylist.items.first.contentDetails.itemCount;
 
-  return [
-    LikesPlaylistElement(likeCount),
-    ...await retrievePlaylists(),
-  ];
+  yield LikesPlaylistElement(likeCount);
+  yield* retrievePlaylists();
 }
 
 Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
@@ -93,13 +96,7 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
   }
 }
 
-Future<Iterable<MoveElement>> displayFollowedArtistsMatches() async {
-  var list = <MoveElement>[];
-  await for (var artist in retrieveSubscriptions()) {
-    print('${artist.name} | ${artist.popularity}');
-    var match = MoveElement(artist);
-    unawaited(match.findSpotifyMatches());
-    list.add(match);
-  }
-  return list;
+Stream<MoveElement> displayFollowedArtistsMatches() async* {
+  yield* retrieveSubscriptions()
+      .map((artist) => MoveElement(artist)..findSpotifyMatches());
 }

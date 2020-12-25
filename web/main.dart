@@ -16,8 +16,8 @@ bool showMatched = false;
 void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
-    _allPlaylists = (await yt.displayUserPlaylists()).toList();
-    _allArtists = (await yt.displayFollowedArtistsMatches()).toList();
+    _allPlaylists = await yt.displayUserPlaylists().toList();
+    _allArtists = await yt.displayFollowedArtistsMatches().toList();
   });
   querySelector('#submitPlaylists').onClick.listen((event) async {
     for (var pl in playlists) {
