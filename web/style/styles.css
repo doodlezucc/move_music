@@ -12,6 +12,7 @@ body {
   color: #999;
   font-family: 'Roboto', sans-serif;
   --color-light: #ccc;
+  --color-good: #51ff94;
 }
 
 #output {
@@ -80,7 +81,15 @@ button {
 }
 button:hover {
   border-color: white;
-  color: white;
+  color: white !important;
+}
+
+.checkbox {
+  border-color: #ccc;
+}
+.checkbox.checked {
+  color: var(--color-light);
+  border-color: var(--color-good);
 }
 
 .grid {
@@ -165,26 +174,26 @@ li {
   align-items: center;
 }
 
-.song.slim {
+.conflict.slim {
   background-color: #1d1d1d;
 }
-.song.slim h3 {
+.conflict.slim h3 {
   font-size: 16px;
   flex: none;
   width: auto;
 }
-.song.slim span::before {
+.conflict.slim span::before {
   content: '-';
   margin: 0 5px;
 }
-.song.slim > .matches {
+.conflict.slim > .matches {
   display: none;
 }
 
-.song.slim > .meta {
+.conflict.slim > .meta {
   width: 100%;
 }
-.song.slim > .square {
+.conflict.slim > .square {
   --size: 32px;
 }
 
@@ -247,6 +256,18 @@ li {
   padding-left: 15px;
 }
 
+#conflicts.hide-matched .conflict.matched {
+  display: none;
+}
+.conflict.matched::after {
+  content: url('check-mark.svg');
+  align-self: center;
+  position: relative;
+  top: 2px;
+  margin-right: 5px;
+  opacity: 0.75;
+}
+
 .matches > .status {
   display: grid;
   height: 100%;
@@ -261,7 +282,7 @@ li.slim .source-duration {
   display: none;
 }
 
-.song > .meta {
+.conflict > .meta {
   width: 35%;
 }
 

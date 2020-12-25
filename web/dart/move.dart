@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 import 'helpers.dart';
 import 'match.dart';
 
-final conflictCounter = querySelector('#conflicts');
+final conflictCounter = querySelector('#conflictCounter');
 int _conflicts = 0;
 int get conflicts => _conflicts;
 set conflicts(int v) {
@@ -41,7 +41,7 @@ class MoveElement<T extends Moveable> {
   SpanElement status;
   bool get _collapsed => e.classes.contains('slim');
   set _collapsed(bool v) {
-    e.classes.toggle('slim', v);
+    e.classes.toggleAll(['slim', 'matched'], v);
     e.querySelector('.meta').classes.toggle('slim', v);
   }
 
@@ -49,7 +49,7 @@ class MoveElement<T extends Moveable> {
 
   MoveElement(this.source) {
     e = LIElement()
-      ..className = 'song slim'
+      ..className = 'conflict slim'
       ..append(squareImage(src: source.pictureUrl))
       ..append(DivElement()
         ..className = 'meta slim'
@@ -69,7 +69,7 @@ class MoveElement<T extends Moveable> {
           }
         }
       });
-    querySelector('#songs').append(e);
+    querySelector('#conflicts').append(e);
   }
 
   void onSearchKeyDown(KeyboardEvent e) {

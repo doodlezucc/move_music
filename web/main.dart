@@ -11,6 +11,8 @@ Iterable<MoveElement> _allArtists;
 Iterable<PlaylistElement> get playlists =>
     _allPlaylists.where((pl) => !pl.ignored);
 
+bool showMatched = false;
+
 void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
@@ -31,6 +33,16 @@ void main() {
     await spotify.followArtists(_allArtists
         .where((a) => a.match != null)
         .map((a) => a.match.target.id));
+  });
+
+  var showBtn = querySelector('#showMatched');
+  var conflicts = querySelector('#conflicts');
+
+  showBtn.onClick.listen((event) {
+    showMatched = !showMatched;
+    showBtn.classes.toggle('checked', showMatched);
+    print(conflicts);
+    conflicts.classes.toggle('hide-matched', !showMatched);
   });
 
   document.onKeyPress.listen((event) {
