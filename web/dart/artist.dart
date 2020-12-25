@@ -1,8 +1,20 @@
 import 'package:meta/meta.dart';
 
-class Artist {
-  final String name;
-  final String pictureUrl;
+import 'move.dart';
 
-  Artist({@required this.name, @required this.pictureUrl});
+class Artist extends Moveable {
+  final double popularity;
+
+  Artist(
+      {@required String id,
+      @required String name,
+      @required String pictureUrl,
+      this.popularity = 1})
+      : super(id: id, name: name, pictureUrl: pictureUrl);
+
+  @override
+  String toQuery() => name.trim().toLowerCase();
+
+  @override
+  Iterable<String> meta() => [(popularity * 100).round().toString()];
 }

@@ -1,9 +1,9 @@
 import 'dart:html';
 
-import 'duration.dart';
+import 'package:meta/meta.dart';
+
 import 'helpers.dart';
 import 'match.dart';
-import 'song.dart';
 
 final conflictCounter = querySelector('#conflicts');
 int _conflicts = 0;
@@ -13,11 +13,25 @@ set conflicts(int v) {
   conflictCounter.text = v.toString();
 }
 
-class MoveElement {
-  final Song source;
+abstract class Moveable {
+  final String id;
+  final String name;
+  final String pictureUrl;
+
+  Moveable({@required this.id, @required this.name, @required this.pictureUrl});
+
+  String toQuery();
+
+  Iterable<String> meta() => [];
+  Iterable<Element> metaElements() =>
+      meta().map((e) => SpanElement()..text = e);
+}
+
+class MoveElement<T extends Moveable> {
+  final T source;
   int selected = 0;
-  List<SongMatch> matches = [];
-  SongMatch get match => selected >= 0 ? matches[selected] : null;
+  List<Match> matches = [];
+  Match get match => selected >= 0 ? matches[selected] : null;
   HtmlElement e;
   SpanElement status;
   bool get _collapsed => e.classes.contains('slim');
@@ -31,14 +45,11 @@ class MoveElement {
   MoveElement(this.source) {
     e = LIElement()
       ..className = 'song slim'
-      ..append(squareImage(src: source.coverArtUrl))
+      ..append(squareImage(src: source.pictureUrl))
       ..append(DivElement()
         ..className = 'meta slim'
         ..append(HeadingElement.h3()..text = source.name)
-        ..append(SpanElement()..text = source.artists.join(', '))
-        ..append(SpanElement()
-          ..text = durationString(source.duration)
-          ..className = 'source-duration'))
+        ..children.addAll(source.metaElements()))
       ..append(TableElement()
         ..className = 'matches'
         ..append(InputElement(type: 'text')
@@ -63,7 +74,7 @@ class MoveElement {
     }
   }
 
-  void selectMatch(SongMatch s, {userAction = true}) {
+  void selectMatch(Match s, {userAction = true}) {
     if (selected >= 0) {
       rows[selected].classes.remove('selected');
     } else if (userAction) {
@@ -80,7 +91,7 @@ class MoveElement {
       row.remove();
     });
     status.text = 'Searching...';
-    matches = await searchSongMatches(source, query: query);
+    matches = await searchMatches(source, query: query);
     matches.forEach((m) {
       _createRow(m);
     });
@@ -94,17 +105,16 @@ class MoveElement {
     }
   }
 
-  void _createRow(SongMatch m) {
+  void _createRow(Match m) {
     TableCellElement cell(dynamic child) {
       if (child is HtmlElement) return TableCellElement()..append(child);
       return TableCellElement()..text = child;
     }
 
     var matchE = TableRowElement()
-      ..append(cell(squareImage(src: m.song.coverArtUrl)))
-      ..append(cell(m.song.name))
-      ..append(cell(m.song.artists.join(', ')))
-      ..append(cell(durationString(m.song.duration)))
+      ..append(cell(squareImage(src: m.target.pictureUrl)))
+      ..append(cell(m.target.name))
+      ..children.addAll(m.target.meta().map((meta) => cell(meta)))
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
       ..onClick.listen((event) => selectMatch(m));
 

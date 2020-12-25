@@ -3,6 +3,7 @@ import 'dart:html';
 
 import 'package:spotify/spotify.dart';
 
+import 'artist.dart' as artist;
 import 'helpers.dart';
 import 'song.dart';
 
@@ -23,12 +24,9 @@ Future<void> ensureCredentials() async {
   spotify = SpotifyApi(credentials);
 }
 
-Future<Iterable<Song>> search(String query) async {
-  query = query.replaceAll(RegExp(r'[^\p{L} 0-9]', unicode: true), ' ');
+Future<Iterable<Song>> searchSong(String query) async {
   await ensureCredentials();
-  var bundledPages = spotify.search.get(query, types: [
-    SearchType.track,
-  ]);
+  var bundledPages = spotify.search.get(query, types: [SearchType.track]);
 
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
@@ -41,6 +39,20 @@ Future<Iterable<Song>> search(String query) async {
       ));
 }
 
+Future<Iterable<artist.Artist>> searchArtist(String query) async {
+  await ensureCredentials();
+  var bundledPages = spotify.search.get(query, types: [SearchType.artist]);
+
+  var page = (await bundledPages.first(5)).first;
+  var artists = List<Artist>.from(page.items);
+  return artists.map((a) => artist.Artist(
+        id: a.id,
+        name: a.name,
+        pictureUrl: a.images.isNotEmpty ? a.images.first.url : '',
+        popularity: a.popularity / 100,
+      ));
+}
+
 Future<bool> ensureGrant() async {
   if (gotUserGrant) return true;
   await ensureCredentials();
@@ -49,7 +61,11 @@ Future<bool> ensureGrant() async {
   var redirectUri = 'http://localhost:8080/spotify/callback.html';
   var authUri = grant.getAuthorizationUrl(
     Uri.parse(redirectUri),
-    scopes: ['user-library-modify', 'playlist-modify-private'],
+    scopes: [
+      'user-library-modify',
+      'playlist-modify-private',
+      'user-follow-modify'
+    ],
   );
 
   var completer = Completer<bool>();
@@ -147,5 +163,18 @@ Future<void> likeTracks(Iterable<String> ids,
     }
   } else {
     print('Access denied');
+  }
+}
+
+Future<void> followArtists(Iterable<String> ids) async {
+  if (await ensureGrant()) {
+    await for (var done in batchOperation(
+      ids,
+      batchSize: 50,
+      operation: (ids) async =>
+          await spotify.me.follow(FollowingType.artist, ids.toList()),
+    )) {
+      print('$done artists followed.');
+    }
   }
 }

@@ -4,16 +4,18 @@ import 'dart/move.dart';
 import 'dart/playlist.dart';
 import 'dart/song.dart';
 import 'dart/youtube.dart' as yt;
+import 'dart/spotify.dart' as spotify;
 
 Iterable<PlaylistElement> _allPlaylists;
+Iterable<MoveElement> _allArtists;
 Iterable<PlaylistElement> get playlists =>
     _allPlaylists.where((pl) => !pl.ignored);
 
 void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
-    await yt.displayFollowedArtists();
-    //_allPlaylists = (await yt.displayUserPlaylists()).toList();
+    _allPlaylists = (await yt.displayUserPlaylists()).toList();
+    _allArtists = (await yt.displayFollowedArtistsMatches()).toList();
   });
   querySelector('#submitPlaylists').onClick.listen((event) async {
     for (var pl in playlists) {
@@ -24,6 +26,11 @@ void main() {
     for (var pl in playlists) {
       await pl.move();
     }
+  });
+  querySelector('#moveFollows').onClick.listen((event) async {
+    await spotify.followArtists(_allArtists
+        .where((a) => a.match != null)
+        .map((a) => a.match.target.id));
   });
 
   document.onKeyPress.listen((event) {

@@ -50,7 +50,7 @@ abstract class PlaylistElement {
 
   Future<void> move() async {
     var matchedSongs = itemIds
-        .map((id) => allIdMoves[id].match?.song)
+        .map((id) => allIdMoves[id].match?.target)
         .where((song) => song != null);
 
     if (matchedSongs.isEmpty) {

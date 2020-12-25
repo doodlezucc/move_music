@@ -10,7 +10,9 @@ dependencies:
   googleapis: any
   googleapis_auth: any
   spotify:
-    git: https://github.com/doodlezucc/spotify-dart.git
+    git:
+      url: https://github.com/doodlezucc/spotify-dart.git
+      ref: follow
   string_similarity: ^1.1.0
   meta: ^1.2.4
 

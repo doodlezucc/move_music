@@ -1,9 +1,9 @@
-import 'dart:convert';
-
 import 'package:googleapis/youtube/v3.dart';
 import 'package:googleapis_auth/auth_browser.dart';
+import 'package:pedantic/pedantic.dart';
 
 import 'artist.dart';
+import 'move.dart';
 import 'playlist.dart';
 
 final clientId = ClientId(
@@ -77,6 +77,7 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
       .contains('/m/04rlf')); // Channel contains "Music" topic
 
   yield* Stream.fromIterable(validChannels.map((e) => Artist(
+        id: e.snippet.resourceId.channelId,
         name: e.snippet.title,
         pictureUrl: e.snippet.thumbnails.medium.url,
       )));
@@ -86,11 +87,12 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
   }
 }
 
-Future<Iterable<Artist>> displayFollowedArtists() async {
-  var list = <Artist>[];
+Future<Iterable<MoveElement>> displayFollowedArtistsMatches() async {
+  var list = <MoveElement>[];
   await for (var artist in retrieveSubscriptions()) {
-    print(artist.name);
-    list.add(artist);
+    var match = MoveElement(artist);
+    unawaited(match.findSpotifyMatches());
+    list.add(match);
   }
   return list;
 }

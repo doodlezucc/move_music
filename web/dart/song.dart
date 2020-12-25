@@ -1,28 +1,43 @@
+import 'dart:html';
+
 import 'package:meta/meta.dart';
 
-class Song {
-  final String id;
-  final String name;
+import 'duration.dart';
+import 'move.dart';
+
+class Song extends Moveable {
   final Iterable<String> _artists;
   Iterable<String> get artists => _artists;
-  final String coverArtUrl;
   final Duration duration;
 
   Song({
-    @required this.name,
+    @required String name,
     @required Iterable<String> artists,
-    @required this.id,
-    @required this.coverArtUrl,
+    @required String id,
+    @required String coverArtUrl,
     @required Duration duration,
   })  : _artists = artists,
-        duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil());
+        duration = Duration(seconds: (duration.inMilliseconds / 1000).ceil()),
+        super(id: id, name: name, pictureUrl: coverArtUrl);
 
+  @override
   String toQuery() => _toQuery().trim().toLowerCase();
 
   String _toQuery() => '$name ${artists.join(' ')}';
 
   @override
   String toString() => artists.join(', ') + ' - "' + name + '"';
+
+  @override
+  Iterable<String> meta() => [artists.join(', '), durationString(duration)];
+
+  @override
+  List<Element> metaElements() => [
+        SpanElement()..text = artists.join(', '),
+        SpanElement()
+          ..text = durationString(duration)
+          ..className = 'source-duration'
+      ];
 }
 
 class YouTubeSong extends Song {
