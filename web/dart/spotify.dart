@@ -157,7 +157,7 @@ Future<void> likeTracks(Iterable<String> ids,
       await for (var done in batchOperation(
         idList,
         batchSize: 50,
-        operation: (ids) => spotify.tracks.me.save(ids),
+        operation: (ids) => spotify.tracks.me.save(ids.toList()),
       )) {
         print('$done songs liked.');
       }
