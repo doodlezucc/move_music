@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:meta/meta.dart';
 
+import 'artist.dart';
 import 'helpers.dart';
 import 'match.dart';
 
@@ -11,6 +12,13 @@ int get conflicts => _conflicts;
 set conflicts(int v) {
   _conflicts = v;
   conflictCounter.text = v.toString();
+}
+
+final conflictProgress = querySelector('#conflictProgress');
+int maxSearches = 1;
+int _searches = 0;
+set searchProgress(double v) {
+  conflictProgress.text = 'Searching... ' + (v * 100).toStringAsFixed(1) + '%';
 }
 
 abstract class Moveable {
@@ -48,8 +56,10 @@ class MoveElement<T extends Moveable> {
   List<Element> get rows => e.querySelectorAll('.matches > tr').toList();
 
   MoveElement(this.source) {
+    var artistClass = (source is Artist) ? ' artist' : '';
+
     e = LIElement()
-      ..className = 'conflict slim'
+      ..className = 'conflict slim' + artistClass
       ..append(squareImage(src: source.pictureUrl))
       ..append(DivElement()
         ..className = 'meta slim'
@@ -115,6 +125,7 @@ class MoveElement<T extends Moveable> {
       selected = -1;
       _collapsed = false;
     }
+    searchProgress = (++_searches) / maxSearches;
   }
 
   void _createRow(Match m) {

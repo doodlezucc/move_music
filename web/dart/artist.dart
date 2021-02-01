@@ -18,6 +18,7 @@ class Artist extends Moveable {
   @override
   String toQuery() => name.trim().toLowerCase();
 
-  // @override
-  // Iterable<String> meta() => [popularity.toString()];
+  @override
+  Iterable<String> meta() => ['Artist'];
+  //Iterable<String> meta() => [popularity.toString()];
 }

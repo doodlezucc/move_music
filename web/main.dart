@@ -13,26 +13,40 @@ Iterable<PlaylistElement> get playlists =>
 
 bool showMatched = false;
 
+final ButtonElement moveButton = querySelector('#move');
+
 void main() {
   querySelector('#authYT').onClick.listen((event) async {
     await yt.initClient(true);
+    changeSection('#playlistSection');
     _allPlaylists = await yt.displayUserPlaylists().toList();
     _allArtists = await yt.displayFollowedArtistsMatches().toList();
+    maxSearches = _allArtists.length;
   });
   querySelector('#submitPlaylists').onClick.listen((event) async {
+    maxSearches = _allArtists.length +
+        playlists.fold(
+            0, (previousValue, element) => previousValue + element.songCount);
+    changeSection('#conflictSection');
     for (var pl in playlists) {
       await pl.displayAllMatches();
     }
+    querySelector('#conflictProgress').remove();
+    moveButton.disabled = false;
   });
-  querySelector('#move').onClick.listen((event) async {
-    for (var pl in playlists) {
-      await pl.move();
+  moveButton.onClick.listen((event) async {
+    moveButton.disabled = true;
+    if (!await spotify.ensureGrant()) {
+      return moveButton.disabled = false;
     }
-  });
-  querySelector('#moveFollows').onClick.listen((event) async {
+
+    changeSection('#processSection');
     await spotify.followArtists(_allArtists
         .where((a) => a.match != null)
         .map((a) => a.match.target.id));
+    for (var pl in playlists) {
+      await pl.move();
+    }
   });
 
   var showBtn = querySelector('#showMatched');
@@ -41,7 +55,6 @@ void main() {
   showBtn.onClick.listen((event) {
     showMatched = !showMatched;
     showBtn.classes.toggle('checked', showMatched);
-    print(conflicts);
     conflicts.classes.toggle('hide-matched', !showMatched);
   });
 
@@ -60,6 +73,11 @@ void main() {
 
 void _reloadCss() {
   querySelectorAll<LinkElement>('link').forEach((link) => link.href += '');
+}
+
+void changeSection(String next) {
+  querySelector('.section.show').classes.remove('show');
+  querySelector(next).classes.add('show');
 }
 
 void _testMoveElems() {
