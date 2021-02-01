@@ -5,6 +5,7 @@ import 'package:spotify/spotify.dart';
 
 import 'artist.dart' as artist;
 import 'helpers.dart';
+import 'process_log.dart';
 import 'song.dart';
 
 SpotifyApiCredentials credentials;
@@ -115,16 +116,20 @@ Future<bool> ensureGrant() async {
 Future<void> createPlaylist(
     String name, String description, Iterable<String> itemIds) async {
   if (await ensureGrant()) {
+    var line = Line('Creating playlist "$name"...');
     var playlist = await spotify.playlists.createPlaylist(
       user.id,
       name,
       public: false,
       description: description,
     );
-    print('Playlist created');
     await for (var done in addIdsToPlaylist(itemIds, playlist.id)) {
-      print('$done songs added to playlist');
+      var percent = 100 * done / itemIds.length;
+      line.text = 'Added $done/${itemIds.length} songs to "$name" ($percent%)';
     }
+    line
+      ..text = 'Created playlist "$name" with ${itemIds.length} songs!'
+      ..finish();
   }
 }
 
@@ -143,12 +148,15 @@ Future<void> likeTracks(Iterable<String> ids,
   if (await ensureGrant()) {
     // Access granted
     var idList = ids.toList();
+    var line = Line('Liking songs...');
 
     if (orderMatters) {
       for (var i = 1; i <= ids.length; i++) {
         var id = idList[ids.length - i];
         await spotify.tracks.me.saveOne(id);
-        print('Liked ' + id + ' | $i/${ids.length}');
+
+        var percent = 100 * i ~/ ids.length;
+        line.text = 'Liked $i/${ids.length} songs ($percent%)';
         // Spotify scrambles the order if two or more tracks are added
         // to a playlist in less than a second. idk why. this makes me sad.
         await Future.delayed(Duration(milliseconds: 1000));
@@ -159,8 +167,10 @@ Future<void> likeTracks(Iterable<String> ids,
         batchSize: 50,
         operation: (ids) => spotify.tracks.me.save(ids.toList()),
       )) {
-        print('$done songs liked.');
+        var percent = 100 * done ~/ ids.length;
+        line.text = 'Liked $done/${ids.length} songs ($percent%)';
       }
+      line.finish();
     }
   } else {
     print('Access denied');
@@ -169,13 +179,16 @@ Future<void> likeTracks(Iterable<String> ids,
 
 Future<void> followArtists(Iterable<String> ids) async {
   if (await ensureGrant()) {
+    var line = Line('Following artists...');
     await for (var done in batchOperation(
       ids,
       batchSize: 50,
       operation: (ids) async =>
           await spotify.me.follow(FollowingType.artist, ids.toList()),
     )) {
-      print('$done artists followed.');
+      var percent = 100 * done ~/ ids.length;
+      line.text = 'Followed $done/${ids.length} artists ($percent%)';
     }
+    line.finish();
   }
 }

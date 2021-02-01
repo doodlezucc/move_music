@@ -36,13 +36,19 @@ Future<String> getLikedVideoPlaylistId({bool safe = false}) async {
   return playlists.likes;
 }
 
-void initClient(bool immediate) async {
+Future<bool> initClient(bool immediate) async {
   // Initialize the browser oauth2 flow functionality.
   var flow = await createImplicitBrowserFlow(clientId, scopes);
-  var client = await flow.clientViaUserConsent(immediate: immediate);
-  flow.close();
+  try {
+    var client = await flow.clientViaUserConsent(immediate: immediate);
+    flow.close();
 
-  yt = YoutubeApi(client);
+    yt = YoutubeApi(client);
+    return true;
+  } catch (err) {
+    print(err);
+    return false;
+  }
 }
 
 Stream<YouTubePlaylistElement> displayUserPlaylists() async* {

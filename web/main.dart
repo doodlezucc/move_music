@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'dart/move.dart';
 import 'dart/playlist.dart';
+import 'dart/process_log.dart';
 import 'dart/song.dart';
 import 'dart/youtube.dart' as yt;
 import 'dart/spotify.dart' as spotify;
@@ -13,16 +14,20 @@ Iterable<PlaylistElement> get playlists =>
 
 bool showMatched = false;
 
-final ButtonElement moveButton = querySelector('#move');
+final ButtonElement authButton = querySelector('#authYT');
 
 void main() {
-  querySelector('#authYT').onClick.listen((event) async {
-    await yt.initClient(true);
-    changeSection('#playlistSection');
+  authButton.onClick.listen((event) async {
+    authButton.disabled = true;
+    if (!await yt.initClient(true)) {
+      return authButton.disabled = false;
+    }
     _allPlaylists = await yt.displayUserPlaylists().toList();
+    changeSection('#playlistSection');
     _allArtists = await yt.displayFollowedArtistsMatches().toList();
     maxSearches = _allArtists.length;
   });
+
   querySelector('#submitPlaylists').onClick.listen((event) async {
     maxSearches = _allArtists.length +
         playlists.fold(
@@ -31,9 +36,13 @@ void main() {
     for (var pl in playlists) {
       await pl.displayAllMatches();
     }
-    querySelector('#conflictProgress').remove();
+    searchDone = true;
+    querySelector('#conflictSub')
+      ..classes.toggle('hidden', conflicts > 0)
+      ..text = 'Everything can be moved!';
     moveButton.disabled = false;
   });
+
   moveButton.onClick.listen((event) async {
     moveButton.disabled = true;
     if (!await spotify.ensureGrant()) {
@@ -47,15 +56,16 @@ void main() {
     for (var pl in playlists) {
       await pl.move();
     }
+    Line('Done!').finish();
   });
 
   var showBtn = querySelector('#showMatched');
-  var conflicts = querySelector('#conflicts');
+  var conflictsContainer = querySelector('#conflicts');
 
   showBtn.onClick.listen((event) {
     showMatched = !showMatched;
     showBtn.classes.toggle('checked', showMatched);
-    conflicts.classes.toggle('hide-matched', !showMatched);
+    conflictsContainer.classes.toggle('hide-matched', !showMatched);
   });
 
   document.onKeyPress.listen((event) {

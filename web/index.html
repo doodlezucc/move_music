@@ -29,24 +29,22 @@
 
   <div class="section" id="conflictSection">
     <h2>Conflicts (<span id="conflictCounter">0</span> unresolved)</h2>
-    <p>Conflicts are songs or artists that don't have an exact Spotify equivalent.
-      <br>For each conflict, you can pick a suggested similar result or try a different search query.
-    </p>
-    <p id="conflictProgress">Searching... 0%</p>
-    <br>
-    <button id="showMatched" class="checkbox">Show resolved conflicts</button>
+    <span class="inline">
+      <p>
+        Conflicts are songs or artists that don't have an exact Spotify equivalent.
+        <br>For each conflict, you can pick a suggested similar result or try a different search query.
+      </p>
+      <button id="showMatched" class="checkbox">Show resolved conflicts</button>
+    </span>
     <ul id="conflicts" class="hide-matched"></ul>
+    <p id="conflictSub">Searching... 0%</p>
     <button id="move" disabled>Move</button>
   </div>
 
   <div class="section show" id="processSection">
-    <h2>Processing</h2>
-    <div id="processLog">
-      <span>Creating playlist "gnorshk"</span>
-      <span>- Added 50 songs</span>
-      <span>Followed 49 artists</span>
-      <span>Liked 40/563 songs</span>
-    </div>
+    <h2>Moving</h2>
+    <div id="processLog"></div>
+    <button><a href="https://open.spotify.com/collection/playlists">Open Spotify</a></button>
   </div>
 </body>
 

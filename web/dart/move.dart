@@ -6,19 +6,34 @@ import 'artist.dart';
 import 'helpers.dart';
 import 'match.dart';
 
+final subText = querySelector('#conflictSub');
 final conflictCounter = querySelector('#conflictCounter');
 int _conflicts = 0;
 int get conflicts => _conflicts;
 set conflicts(int v) {
+  if (searchDone) {
+    subText.classes.toggle('hidden', v > 0);
+  }
   _conflicts = v;
   conflictCounter.text = v.toString();
 }
 
-final conflictProgress = querySelector('#conflictProgress');
+final ButtonElement moveButton = querySelector('#move');
+int _songsToBeMoved = 0;
+int _artistsToBeMoved = 0;
+void _updateMoveButton() {
+  var s = 'Move $_songsToBeMoved songs';
+  if (_artistsToBeMoved > 0) s += ' and $_artistsToBeMoved followed artists';
+  moveButton.text = s;
+}
+
+bool searchDone = false;
 int maxSearches = 1;
 int _searches = 0;
 set searchProgress(double v) {
-  conflictProgress.text = 'Searching... ' + (v * 100).toStringAsFixed(1) + '%';
+  if (!searchDone) {
+    subText.text = 'Searching... ' + (v * 100).toStringAsFixed(1) + '%';
+  }
 }
 
 abstract class Moveable {
@@ -44,7 +59,8 @@ class MoveElement<T extends Moveable> {
   final T source;
   int selected = 0;
   List<Match> matches = [];
-  Match get match => selected >= 0 ? matches[selected] : null;
+  Match get match =>
+      (selected >= 0 && matches.isNotEmpty) ? matches[selected] : null;
   HtmlElement e;
   SpanElement status;
   bool get _collapsed => e.classes.contains('slim');
@@ -93,11 +109,21 @@ class MoveElement<T extends Moveable> {
     if (selected >= 0) {
       rows[selected].classes.remove('selected');
     } else {
+      _countMe(1);
       conflicts--;
     }
     selected = matches.indexOf(s);
     rows[selected].classes.add('selected');
     _collapsed = true;
+  }
+
+  void _countMe(int add) {
+    if (source is Artist) {
+      _artistsToBeMoved += add;
+    } else {
+      _songsToBeMoved += add;
+    }
+    _updateMoveButton();
   }
 
   Future<void> findSpotifyMatches({String query}) async {
@@ -106,6 +132,8 @@ class MoveElement<T extends Moveable> {
       row.remove();
     });
     status.text = 'Searching...';
+
+    var init = matches.isEmpty;
     matches = (await searchMatches(source, query: query)).toList()
       ..sort((a, b) {
         var similarity = b.similarity.compareTo(a.similarity);
@@ -118,9 +146,12 @@ class MoveElement<T extends Moveable> {
       _createRow(m);
     });
     status.text = 'No results found for "$query"';
+
     if (matches.isNotEmpty && matches.first.similarity >= 0.95) {
+      if (init) _countMe(1);
       selectMatch(matches.first);
     } else if (selected >= 0) {
+      if (!init) _countMe(-1);
       conflicts++;
       selected = -1;
       _collapsed = false;
