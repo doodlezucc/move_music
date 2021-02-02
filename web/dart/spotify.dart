@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:pedantic/pedantic.dart';
 import 'package:spotify/spotify.dart';
 
 import 'artist.dart' as artist;
 import 'helpers.dart';
 import 'process_log.dart';
 import 'song.dart';
+
+const millisPerLike = 1050;
 
 SpotifyApiCredentials credentials;
 SpotifyApi spotify;
@@ -153,13 +156,13 @@ Future<void> likeTracks(Iterable<String> ids,
     if (orderMatters) {
       for (var i = 1; i <= ids.length; i++) {
         var id = idList[ids.length - i];
-        await spotify.tracks.me.saveOne(id);
+        unawaited(spotify.tracks.me.saveOne(id));
 
-        var percent = 100 * i ~/ ids.length;
+        var percent = (100 * i / ids.length).toStringAsFixed(1);
         line.text = 'Liked $i/${ids.length} songs ($percent%)';
-        // Spotify scrambles the order if two or more tracks are added
-        // to a playlist in less than a second. idk why. this makes me sad.
-        await Future.delayed(Duration(milliseconds: 1000));
+        if (i < ids.length) {
+          await Future.delayed(Duration(milliseconds: millisPerLike));
+        }
       }
     } else {
       await for (var done in batchOperation(
@@ -170,8 +173,8 @@ Future<void> likeTracks(Iterable<String> ids,
         var percent = 100 * done ~/ ids.length;
         line.text = 'Liked $done/${ids.length} songs ($percent%)';
       }
-      line.finish();
     }
+    line.finish();
   } else {
     print('Access denied');
   }

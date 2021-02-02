@@ -155,6 +155,8 @@ class YouTubePlaylistElement extends PlaylistElement {
 }
 
 class LikesPlaylistElement extends YouTubePlaylistElement {
+  bool orderMatters = false;
+
   LikesPlaylistElement(int songCount) : super._likes(songCount);
 
   @override
@@ -170,6 +172,6 @@ class LikesPlaylistElement extends YouTubePlaylistElement {
   @override
   Future<void> _move(Iterable<Song> matchedSongs) async {
     var ids = matchedSongs.map((song) => song.id);
-    await spotify.likeTracks(ids);
+    await spotify.likeTracks(ids, orderMatters: orderMatters);
   }
 }

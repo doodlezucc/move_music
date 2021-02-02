@@ -1,5 +1,6 @@
 import 'dart:html';
 
+import 'dart/duration.dart';
 import 'dart/move.dart';
 import 'dart/playlist.dart';
 import 'dart/process_log.dart';
@@ -16,10 +17,10 @@ bool showMatched = false;
 
 final ButtonElement authButton = querySelector('#authYT');
 
-void main() {
+void main() async {
   authButton.onClick.listen((event) async {
     authButton.disabled = true;
-    if (!await yt.initClient(true)) {
+    if (!await yt.initClient(false)) {
       return authButton.disabled = false;
     }
     _allPlaylists = await yt.displayUserPlaylists().toList();
@@ -43,22 +44,6 @@ void main() {
     moveButton.disabled = false;
   });
 
-  moveButton.onClick.listen((event) async {
-    moveButton.disabled = true;
-    if (!await spotify.ensureGrant()) {
-      return moveButton.disabled = false;
-    }
-
-    changeSection('#processSection');
-    await spotify.followArtists(_allArtists
-        .where((a) => a.match != null)
-        .map((a) => a.match.target.id));
-    for (var pl in playlists) {
-      await pl.move();
-    }
-    Line('Done!').finish();
-  });
-
   var showBtn = querySelector('#showMatched');
   var conflictsContainer = querySelector('#conflicts');
 
@@ -68,6 +53,26 @@ void main() {
     conflictsContainer.classes.toggle('hide-matched', !showMatched);
   });
 
+  querySelector('#orderYes').onClick.listen((_) => move(true));
+  querySelector('#orderNo').onClick.listen((_) => move(false));
+  moveButton.onClick.listen((_) {
+    var likesPl = playlists.singleWhere(
+      (element) => element is LikesPlaylistElement,
+      orElse: () => null,
+    );
+    if (likesPl != null) {
+      var likes =
+          likesPl.itemIds.where((id) => allIdMoves[id].match?.target != null);
+
+      querySelector('#orderTime').text = durationSpelledOut(
+          (spotify.millisPerLike * likes.length / 1000).ceil());
+      querySelector('#likesCount').text = likes.length.toString();
+      changeSection('#likesSection');
+    } else {
+      move();
+    }
+  });
+
   document.onKeyPress.listen((event) {
     if (event.target is InputElement) return;
     if (event.key == 'R') {
@@ -75,10 +80,31 @@ void main() {
     }
   });
 
+  // Initialize section animations
+  await Future.delayed(Duration(milliseconds: 500));
+  querySelectorAll('.section').classes.add('init');
+
   var test = false;
   if (test) {
     _testMoveElems();
   }
+}
+
+Future<void> move([bool orderMatters]) async {
+  moveButton.disabled = true;
+  if (!await spotify.ensureGrant()) {
+    return moveButton.disabled = false;
+  }
+
+  changeSection('#processSection');
+  await spotify.followArtists(
+      _allArtists.where((a) => a.match != null).map((a) => a.match.target.id));
+  for (var pl in playlists.toList().reversed) {
+    if (pl is LikesPlaylistElement) pl.orderMatters = orderMatters;
+    await pl.move();
+  }
+  Line('Done!').finish();
+  (querySelector('openDestination') as ButtonElement).disabled = false;
 }
 
 void _reloadCss() {

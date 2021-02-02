@@ -47,11 +47,7 @@ p {
 
 .section {
   position: absolute;
-  left: 100px;
   width: 100%;
-  opacity: 0;
-  transition-duration: 1s;
-  transition-timing-function: ease;
   pointer-events: none;
   overflow: hidden;
   padding: inherit;
@@ -61,14 +57,28 @@ p {
   gap: 10px;
   align-items: center;
   margin-bottom: 100px;
+  animation: slideout 0.5s ease-in;
+  animation-fill-mode: both !important;
 }
 .section.show {
-  left: 0;
-  opacity: 1;
   pointer-events: all;
+  animation: slidein 0.5s ease 0.3s;
+}
+.section:not(.init) {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
 }
 .section > p {
   text-align: center;
+}
+
+@keyframes slidein {
+  from { left: 500px; opacity: 0; }
+  to { left: 0; opacity: 1; }
+}
+@keyframes slideout {
+  from { left: 0; opacity: 1; }
+  to { left: -500px; opacity: 0; }
 }
 
 #authSection {
@@ -394,4 +404,17 @@ li.slim .source-duration {
 }
 .inline > :first-child {
   margin-right: auto;
+}
+
+.warning {
+  font-size: 19px;
+}
+b {
+  color: white;
+  text-shadow: 0 0 4px #000a;
+}
+.highlight {
+  text-shadow: 0 0 4px #000a;
+  color: var(--color-title);
+  font-weight: bold;
 }

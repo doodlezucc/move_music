@@ -7,14 +7,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="scaffolded-by" content="https://github.com/dart-lang/stagehand">
-  <title>move_music</title>
+  <title>Move Music</title>
   <link rel="stylesheet" href="style/styles.css">
   <link rel="icon" href="style/favicon.ico">
   <script defer src="main.dart.js"></script>
 </head>
 
 <body>
-  <div class="section" id="authSection">
+  <div class="section show" id="authSection">
     <h1>Move Music</h1>
     <h2>YouTube Music to Spotify</h2>
     <button id="authYT">Log Into YouTube Music Account</button>
@@ -41,10 +41,28 @@
     <button id="move" disabled>Move</button>
   </div>
 
-  <div class="section show" id="processSection">
+  <div class="section" id="likesSection">
+    <h2>One More Thing</h2>
+    <p class="warning">
+      Spotify <span class="highlight">shuffles your "Liked Songs" playlist</span> if two or more tracks are liked in
+      less than
+      a second!
+      <br>
+      If the order matters to you, this would take about <b id="orderTime"></b> for <b id="likesCount"></b> songs.
+    </p>
+    <span>
+      <button id="orderYes">Yeah, I've got time</button>
+      <button id="orderNo">Order is not important</button>
+    </span>
+  </div>
+
+  <div class="section" id="processSection">
     <h2>Moving</h2>
+    <p>Your songs and followed artists are being moved!</p>
     <div id="processLog"></div>
-    <button><a href="https://open.spotify.com/collection/playlists">Open Spotify</a></button>
+    <button id="openDestination" disabled>
+      <a href="https://open.spotify.com/collection/playlists">Open in Spotify</a>
+    </button>
   </div>
 </body>
 
