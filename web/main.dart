@@ -33,6 +33,7 @@ void main() async {
     maxSearches = _allArtists.length +
         playlists.fold(
             0, (previousValue, element) => previousValue + element.songCount);
+    updateSearchProgress();
     changeSection('#conflictSection');
     for (var pl in playlists) {
       await pl.displayAllMatches();

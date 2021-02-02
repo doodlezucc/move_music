@@ -30,9 +30,11 @@ void _updateMoveButton() {
 bool searchDone = false;
 int maxSearches = 1;
 int _searches = 0;
-set searchProgress(double v) {
+void updateSearchProgress() {
   if (!searchDone) {
-    subText.text = 'Searching... ' + (v * 100).toStringAsFixed(1) + '%';
+    subText.text = 'Searching... ' +
+        (100 * _searches / maxSearches).toStringAsFixed(1) +
+        '%';
   }
 }
 
@@ -156,7 +158,8 @@ class MoveElement<T extends Moveable> {
       selected = -1;
       _collapsed = false;
     }
-    searchProgress = (++_searches) / maxSearches;
+    _searches++;
+    updateSearchProgress();
   }
 
   void _createRow(Match m) {
