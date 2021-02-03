@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:googleapis/youtube/v3.dart';
 
+import '../main.dart';
 import 'duration.dart';
 import 'helpers.dart';
 import 'move.dart';
@@ -32,6 +33,7 @@ abstract class PlaylistElement {
         ..append(SpanElement()..innerHtml = '$songCount Songs<br>$description'))
       ..onClick.listen((event) {
         e.classes.toggle('ignored');
+        onPlaylistToggle();
       });
     querySelector('#playlists').append(e);
   }

@@ -16,6 +16,14 @@ Iterable<PlaylistElement> get playlists =>
 bool showMatched = false;
 
 final ButtonElement authButton = querySelector('#authYT');
+final ButtonElement submitPLButton = querySelector('#submitPlaylists');
+
+void onPlaylistToggle() {
+  var selected = playlists.length;
+  submitPLButton.text = selected > 0
+      ? 'Use $selected playlist' + plural(selected)
+      : 'Only move followed artists';
+}
 
 void main() async {
   authButton.onClick.listen((event) async {
@@ -24,6 +32,7 @@ void main() async {
       return authButton.disabled = false;
     }
     _allPlaylists = await yt.displayUserPlaylists().toList();
+    onPlaylistToggle();
     changeSection('#playlistSection');
     _allArtists = await yt.displayFollowedArtistsMatches().toList();
     maxSearches = _allArtists.length;
@@ -105,7 +114,7 @@ Future<void> move([bool orderMatters]) async {
     await pl.move();
   }
   Line('Done!').finish();
-  (querySelector('openDestination') as ButtonElement).disabled = false;
+  (querySelector('#openDestination') as ButtonElement).disabled = false;
 }
 
 void _reloadCss() {

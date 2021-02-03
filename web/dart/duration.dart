@@ -28,17 +28,17 @@ String durationString(Duration d) {
   return out;
 }
 
-String _plural(int value) => value != 1 ? 's' : '';
+String plural(int value) => value != 1 ? 's' : '';
 
 String durationSpelledOut(int sec) {
-  var out = (sec % 60).toString() + ' second' + _plural(sec);
+  var out = (sec % 60).toString() + ' second' + plural(sec);
   if (sec < 60) return out;
 
   var min = (sec / 60).floor() % Duration.minutesPerHour;
-  out = min.toString() + ' minute' + _plural(min) + ' and ' + out;
+  out = min.toString() + ' minute' + plural(min) + ' and ' + out;
   if (sec < 60 * 60) return out;
 
   var h = (sec / 60 / 60).floor();
 
-  return '$h hour${_plural(h)}, $out';
+  return '$h hour${plural(h)}, $out';
 }
