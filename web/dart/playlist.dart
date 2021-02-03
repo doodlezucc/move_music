@@ -39,7 +39,6 @@ abstract class PlaylistElement {
   }
 
   Future<void> displayAllMatches() async {
-    print('Getting all songs of $name');
     await for (var song in getAllSongs()) {
       if (!allIdMoves.containsKey(song.id)) {
         var moveElem = MoveElement(song);
@@ -60,9 +59,7 @@ abstract class PlaylistElement {
       return;
     }
 
-    print('Moving $name...');
     await _move(matchedSongs);
-    print('Moved $name!');
   }
 
   Future<void> _move(Iterable<Song> songs);
@@ -115,21 +112,15 @@ class YouTubePlaylistElement extends PlaylistElement {
     var output = videos.items;
 
     if (musicOnly) {
-      var size = output.length;
       output = output.where((vid) {
         // 10 means Music
         if (vid.snippet.categoryId == '10') {
           return true;
         }
-        print('SKIPPING: ' + vid.snippet.title);
+        print('Skipping "${vid.snippet.title}" (not categorized as music)');
         return false;
       }).toList();
-      if (size > output.length) {
-        print('${size - output.length} non-music videos skipped.');
-      }
     }
-
-    print('Got page $pageToken');
 
     yield* Stream.fromIterable(output);
 
