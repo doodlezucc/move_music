@@ -106,6 +106,10 @@ Future<void> move([bool orderMatters]) async {
     return moveButton.disabled = false;
   }
 
+  var exitBlock = window.onBeforeUnload.listen((e) {
+    (e as BeforeUnloadEvent).returnValue = 'Not everything has been moved yet!';
+  });
+
   changeSection('#processSection');
   await spotify.followArtists(
       _allArtists.where((a) => a.match != null).map((a) => a.match.target.id));
@@ -114,6 +118,7 @@ Future<void> move([bool orderMatters]) async {
     await pl.move();
   }
   Line('Done!').finish();
+  await exitBlock.cancel();
   (querySelector('#openDestination') as ButtonElement).disabled = false;
 }
 
