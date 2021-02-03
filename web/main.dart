@@ -21,7 +21,7 @@ final ButtonElement submitPLButton = querySelector('#submitPlaylists');
 void onPlaylistToggle() {
   var selected = playlists.length;
   submitPLButton.text = selected > 0
-      ? 'Use $selected playlist' + plural(selected)
+      ? 'Create $selected playlist' + plural(selected)
       : 'Only move followed artists';
 }
 

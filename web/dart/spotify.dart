@@ -28,9 +28,14 @@ Future<void> ensureCredentials() async {
   spotify = SpotifyApi(credentials);
 }
 
+String betterQuery(String q) {
+  return q.replaceAll('&', '');
+}
+
 Future<Iterable<Song>> searchSong(String query) async {
   await ensureCredentials();
-  var bundledPages = spotify.search.get(query, types: [SearchType.track]);
+  var bundledPages =
+      spotify.search.get(betterQuery(query), types: [SearchType.track]);
 
   var page = (await bundledPages.first(5)).first;
   var tracks = List<Track>.from(page.items);
@@ -46,7 +51,8 @@ Future<Iterable<Song>> searchSong(String query) async {
 
 Future<Iterable<artist.Artist>> searchArtist(String query) async {
   await ensureCredentials();
-  var bundledPages = spotify.search.get(query, types: [SearchType.artist]);
+  var bundledPages =
+      spotify.search.get(betterQuery(query), types: [SearchType.artist]);
 
   var page = (await bundledPages.first(5)).first;
   var artists = List<Artist>.from(page.items);
