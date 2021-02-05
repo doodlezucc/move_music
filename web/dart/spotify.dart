@@ -69,7 +69,11 @@ Future<bool> ensureGrant() async {
   await ensureCredentials();
 
   var grant = SpotifyApi.authorizationCodeGrant(credentials);
-  var redirectUri = 'http://localhost:8080/spotify/callback.html';
+  var root = window.location.href;
+  if (root.contains('/')) {
+    root = root.substring(0, root.lastIndexOf('/'));
+  }
+  var redirectUri = '$root/spotify/callback.html';
   var authUri = grant.getAuthorizationUrl(
     Uri.parse(redirectUri),
     scopes: [

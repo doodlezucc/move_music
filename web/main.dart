@@ -34,6 +34,7 @@ void main() async {
     _allPlaylists = await yt.displayUserPlaylists().toList();
     onPlaylistToggle();
     changeSection('#playlistSection');
+    await spotify.ensureCredentials();
     _allArtists = await yt.displayFollowedArtistsMatches().toList();
     maxSearches = _allArtists.length;
   });
