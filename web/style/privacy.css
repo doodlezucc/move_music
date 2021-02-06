@@ -1,0 +1,41 @@
+body {
+    overflow-y: auto;
+    justify-content: start;
+}
+
+h1, h2, h3 {
+    margin-top: 32px;
+    margin-bottom: 8px;
+}
+h2 {
+    margin-top: 48px;
+}
+h3 {
+    color: white;
+}
+p {
+    margin: 8px 0;
+}
+
+a {
+    color: white;
+}
+
+i {
+    font-style: normal;
+    color: white;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    padding-bottom: 0;
+}
+
+.spacer {
+    min-height: 12%;
+    display: flex;
+    align-items: center;
+}
