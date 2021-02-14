@@ -77,13 +77,19 @@ Stream<Artist> retrieveSubscriptions({String pageToken}) async* {
     maxResults: 10,
   );
 
-  var validChannels = responseSubs.items.where((s) => responseChannels.items
-      .singleWhere((ch) {
-        return s.snippet.resourceId.channelId == ch.id;
-      })
-      .topicDetails
-      .topicIds
-      .contains('/m/04rlf')); // Channel contains "Music" topic
+  var validChannels = responseSubs.items.where((s) {
+    try {
+      return responseChannels.items
+          .singleWhere((ch) {
+            return s.snippet.resourceId.channelId == ch.id;
+          })
+          .topicDetails
+          .topicIds
+          .contains('/m/04rlf');
+    } catch (err) {
+      return true;
+    }
+  }); // Channel contains "Music" topic
 
   yield* Stream.fromIterable(validChannels.map((r) => Artist(
         id: r.snippet.resourceId.channelId,
