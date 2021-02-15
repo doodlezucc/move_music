@@ -86,6 +86,9 @@ p {
 }
 #conflictSection {
   height: 100%;
+}
+
+.no-margin {
   margin: 0;
 }
 
@@ -174,6 +177,8 @@ button:enabled:active {
 }
 .grid.big {
   grid-template-columns: repeat(auto-fit, [col-start] minmax(350px, 1fr) [col-end]);
+  max-height: 65vh;
+  overflow-y: auto;
 }
 
 .grid.big > * {
