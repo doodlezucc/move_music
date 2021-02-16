@@ -6,10 +6,11 @@ import 'artist.dart';
 import 'helpers.dart';
 import 'match.dart';
 
-final IFrameElement spotifyFrame = querySelector('iframe#spotify')
+final IFrameElement iframe = querySelector('iframe');
+final HtmlElement iframeContainer = iframe.parent
   ..onMouseLeave.listen((e) {
-    spotifyFrame.classes.remove('show');
-    spotifyFrame.src = '';
+    iframeContainer.classes.remove('show');
+    iframe.src = '';
   });
 
 final subText = querySelector('#conflictSub');
@@ -80,7 +81,8 @@ class MoveElement<T extends Moveable> {
   List<Element> get rows => e.querySelectorAll('.matches > tr').toList();
 
   MoveElement(this.source) {
-    var artistClass = (source is Artist) ? ' artist' : '';
+    var isArtist = source is Artist;
+    var artistClass = isArtist ? ' artist' : '';
 
     e = LIElement()
       ..className = 'conflict slim' + artistClass
@@ -103,6 +105,29 @@ class MoveElement<T extends Moveable> {
           }
         }
       });
+
+    if (!isArtist) {
+      e.onContextMenu.listen((e) {
+        // Don't open another preview if rightclick was actually on match.
+        if (iframeContainer.classes.contains('show')) return;
+
+        e.preventDefault();
+        var pos = e.page;
+        iframeContainer
+          ..style.left = '${pos.x - 70}px'
+          ..style.top = '${pos.y - 70}px'
+          ..classes.add('show');
+        iframe
+          ..width = '200'
+          ..height = '200'
+          ..src = 'https://www.youtube.com/embed/' +
+              source.id +
+              '?autoplay=1&modestbranding=1';
+        print('https://www.youtube.com/embed/' +
+            source.id +
+            '?autoplay=1&modestbranding=1');
+      });
+    }
     querySelector('#conflicts').append(e);
   }
 
@@ -181,19 +206,20 @@ class MoveElement<T extends Moveable> {
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
       ..onClick.listen((_) => selectMatch(m));
 
-    matchE.onContextMenu.listen((e) async {
+    matchE.onContextMenu.listen((e) {
       e.preventDefault();
       var isArtist = m.target is Artist;
       var type = isArtist ? 'artist' : 'track';
 
       var pos = e.page;
-      spotifyFrame
+      iframeContainer
         ..style.left = '${pos.x - 50}px'
         ..style.top = '${pos.y - 50}px'
+        ..classes.add('show');
+      iframe
         ..width = '300'
         ..height = isArtist ? '400' : '80'
-        ..src = 'https://open.spotify.com/embed/$type/' + m.target.id
-        ..classes.add('show');
+        ..src = 'https://open.spotify.com/embed/$type/' + m.target.id;
     });
 
     var children = e.querySelector('.matches').children;
