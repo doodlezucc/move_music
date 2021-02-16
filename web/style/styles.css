@@ -423,3 +423,16 @@ b {
   color: var(--color-title);
   font-weight: bold;
 }
+
+iframe {
+  position: fixed;
+  opacity: 0;
+  transition-duration: 0.1s;
+  box-shadow: 0 0 10px #000a;
+  pointer-events: none;
+  border: 20px solid transparent;
+}
+iframe.show {
+  opacity: 0.95;
+  pointer-events: all;
+}

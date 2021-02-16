@@ -6,6 +6,12 @@ import 'artist.dart';
 import 'helpers.dart';
 import 'match.dart';
 
+final IFrameElement spotifyFrame = querySelector('iframe#spotify')
+  ..onMouseLeave.listen((e) {
+    spotifyFrame.classes.remove('show');
+    spotifyFrame.src = '';
+  });
+
 final subText = querySelector('#conflictSub');
 final conflictCounter = querySelector('#conflictCounter');
 int _conflicts = 0;
@@ -173,7 +179,22 @@ class MoveElement<T extends Moveable> {
       ..append(cell(m.target.name))
       ..children.addAll(m.target.meta().map((meta) => cell(meta)))
       ..append(cell((m.similarity * 100).toStringAsFixed(0) + '% match'))
-      ..onClick.listen((event) => selectMatch(m));
+      ..onClick.listen((_) => selectMatch(m));
+
+    matchE.onContextMenu.listen((e) async {
+      e.preventDefault();
+      var isArtist = m.target is Artist;
+      var type = isArtist ? 'artist' : 'track';
+
+      var pos = e.page;
+      spotifyFrame
+        ..style.left = '${pos.x - 50}px'
+        ..style.top = '${pos.y - 50}px'
+        ..width = '300'
+        ..height = isArtist ? '400' : '80'
+        ..src = 'https://open.spotify.com/embed/$type/' + m.target.id
+        ..classes.add('show');
+    });
 
     var children = e.querySelector('.matches').children;
     children.insert(children.length - 1, matchE);

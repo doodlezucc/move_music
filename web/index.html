@@ -19,7 +19,6 @@
     <h2>YouTube Music to Spotify</h2>
     <button id="authYT">Log into YouTube Music account</button>
   </div>
-
   <div class="section no-margin" id="playlistSection">
     <h2>Your Playlists</h2>
     <p>Select which playlists to move to Spotify.</p>
@@ -37,6 +36,7 @@
       <p>
         Conflicts are songs or artists that don't have an exact Spotify equivalent.
         <br>For each conflict, you can pick a suggested similar result or try a different search query.
+        <br>Rightclick a song or match to listen to it.
       </p>
       <button id="showMatched" class="checkbox">Show resolved conflicts</button>
     </span>
@@ -44,6 +44,9 @@
     <p id="conflictSub">Searching... 0%</p>
     <button id="move" disabled>Move</button>
   </div>
+
+  <iframe id="spotify" allow="encrypted-media" allowtransparency="true" frameborder="0" height="80"
+    width="300"></iframe>
 
   <div class="section" id="likesSection">
     <h2>One More Thing</h2>
