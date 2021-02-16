@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'dart/duration.dart';
@@ -17,15 +18,20 @@ bool showMatched = false;
 
 final ButtonElement authButton = querySelector('#authYT');
 final ButtonElement submitPLButton = querySelector('#submitPlaylists');
+final ButtonElement plAllButton = querySelector('#selectAll');
+final ButtonElement plNoneButton = querySelector('#selectNone');
 
 void onPlaylistToggle() {
   var selected = playlists.length;
   submitPLButton.text = selected > 0
-      ? 'Create $selected playlist' + plural(selected)
+      ? 'Continue with $selected playlist' + plural(selected)
       : 'Only move followed artists';
+  plAllButton.disabled = _allPlaylists.length == selected;
+  plNoneButton.disabled = selected == 0;
 }
 
 void main() async {
+  StreamSubscription keyListener;
   authButton.onClick.listen((event) async {
     authButton.disabled = true;
     if (!await yt.initClient(false)) {
@@ -33,13 +39,23 @@ void main() async {
     }
     _allPlaylists = await yt.displayUserPlaylists().toList();
     onPlaylistToggle();
+    keyListener = document.onKeyDown.listen((event) {
+      if (event.ctrlKey && event.key == 'a') {
+        event.preventDefault();
+        setAllPlaylistsIgnored(playlists.length == _allPlaylists.length);
+      }
+    });
     changeSection('#playlistSection');
     await spotify.ensureCredentials();
     _allArtists = await yt.displayFollowedArtistsMatches().toList();
     maxSearches = _allArtists.length;
   });
 
+  plAllButton.onClick.listen((_) => setAllPlaylistsIgnored(false));
+  plNoneButton.onClick.listen((_) => setAllPlaylistsIgnored(true));
+
   querySelector('#submitPlaylists').onClick.listen((event) async {
+    await keyListener?.cancel();
     maxSearches = _allArtists.length +
         playlists.fold(
             0, (previousValue, element) => previousValue + element.songCount);
@@ -99,6 +115,11 @@ void main() async {
   if (test) {
     _testMoveElems();
   }
+}
+
+void setAllPlaylistsIgnored(bool ignoreAll) {
+  _allPlaylists.forEach((pl) => pl.ignored = ignoreAll);
+  onPlaylistToggle();
 }
 
 Future<void> move([bool orderMatters]) async {

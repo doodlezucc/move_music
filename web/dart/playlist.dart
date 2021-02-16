@@ -21,6 +21,9 @@ abstract class PlaylistElement {
   final List<String> itemIds = [];
   HtmlElement e;
   bool get ignored => e.classes.contains('ignored');
+  set ignored(bool v) {
+    e.classes.toggle('ignored', v);
+  }
 
   PlaylistElement(
       this.id, this.name, this.description, this.thumbnailUrl, this.songCount) {
