@@ -170,10 +170,12 @@ Future<void> likeTracks(Iterable<String> ids,
 
         var percent = (100 * i / ids.length).toStringAsFixed(1);
         line.text = 'Liked $i/${ids.length} songs ($percent%)';
+        document.title = 'Moving likes... $percent%';
         if (i < ids.length) {
           await Future.delayed(Duration(milliseconds: millisPerLike));
         }
       }
+      document.title = 'Done! | Move Music';
     } else {
       await for (var done in batchOperation(
         idList,
