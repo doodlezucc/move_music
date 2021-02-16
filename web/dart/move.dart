@@ -8,9 +8,12 @@ import 'match.dart';
 
 final IFrameElement iframe = querySelector('iframe');
 final HtmlElement iframeContainer = iframe.parent
-  ..onMouseLeave.listen((e) {
-    iframeContainer.classes.remove('show');
-    iframe.src = '';
+  ..onMouseLeave.listen((e) async {
+    await Future.delayed(Duration(milliseconds: 50));
+    if (document.fullscreenElement == null) {
+      iframeContainer.classes.remove('show');
+      iframe.src = '';
+    }
   });
 
 final subText = querySelector('#conflictSub');
@@ -64,6 +67,11 @@ abstract class Moveable {
       meta().map((e) => SpanElement()..text = e);
 }
 
+AnchorElement _anchor(String href) => AnchorElement(href: href)
+  ..className = 'responsive'
+  ..target = '_blank'
+  ..rel = 'noopener noreferrer';
+
 class MoveElement<T extends Moveable> {
   final T source;
   int selected = 0;
@@ -86,7 +94,10 @@ class MoveElement<T extends Moveable> {
 
     e = LIElement()
       ..className = 'conflict slim' + artistClass
-      ..append(squareImage(src: source.pictureUrl))
+      ..append(_anchor('https://music.youtube.com/' +
+          (isArtist ? 'channel/' : 'watch?v=') +
+          source.id)
+        ..append(squareImage(src: source.pictureUrl)))
       ..append(DivElement()
         ..className = 'meta slim'
         ..append(HeadingElement.h3()..text = source.name)
@@ -98,8 +109,10 @@ class MoveElement<T extends Moveable> {
           ..placeholder = source.toQuery()
           ..onKeyDown.listen(onSearchKeyDown))
         ..append(status = SpanElement()..className = 'status'))
-      ..onClick.listen((event) {
-        if (!(event.target as HtmlElement).matchesWithAncestors('table')) {
+      ..onClick.listen((e) {
+        if (e.target is ImageElement) return;
+        e.preventDefault();
+        if (!(e.target as HtmlElement).matchesWithAncestors('table')) {
           if (_collapsed || selected >= 0) {
             _collapsed = !_collapsed;
           }
@@ -114,7 +127,7 @@ class MoveElement<T extends Moveable> {
         e.preventDefault();
         var pos = e.page;
         iframeContainer
-          ..style.left = '${pos.x - 70}px'
+          ..style.left = '${pos.x - 10}px'
           ..style.top = '${pos.y - 70}px'
           ..classes.add('show');
         iframe
@@ -123,9 +136,6 @@ class MoveElement<T extends Moveable> {
           ..src = 'https://www.youtube.com/embed/' +
               source.id +
               '?autoplay=1&modestbranding=1';
-        print('https://www.youtube.com/embed/' +
-            source.id +
-            '?autoplay=1&modestbranding=1');
       });
     }
     querySelector('#conflicts').append(e);

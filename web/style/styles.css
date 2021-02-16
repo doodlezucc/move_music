@@ -143,23 +143,12 @@ button {
   border-radius: 4px;
   padding: 6px 8px;
   outline: none;
-  transition-property: transform;
-  transition-duration: 0.5s;
-  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 button:enabled {
   cursor: pointer;
 }
 button:disabled {
   background-color: #ddd7;
-}
-button:enabled:hover {
-  /* background-color: #fff !important; */
-  transform: scale(0.98);
-  transition-duration: 0.1s;
-}
-button:enabled:active {
-  transform: scale(0.95);
 }
 
 .checkbox {
@@ -181,16 +170,16 @@ button:enabled:active {
   overflow-y: auto;
 }
 
-.grid.big > * {
+.responsive, button {
   transition-property: transform;
   transition-duration: 0.5s;
   transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
-.grid.big > *:hover {
+.responsive:hover, button:enabled:hover {
   transform: scale(0.98);
   transition-duration: 0.1s;
 }
-.grid.big > *:active {
+.responsive:active, button:enabled:active {
   transform: scale(0.95);
 }
 
@@ -255,6 +244,9 @@ li {
   text-overflow: ellipsis;
   align-items: center;
 }
+.conflict > a:hover {
+  filter: brightness(1.3);
+}
 
 .conflict.slim h3 {
   font-size: 16px;
@@ -272,10 +264,13 @@ li {
 .conflict.slim > .meta {
   width: 100%;
 }
-.conflict.slim > .square {
+.conflict.slim > a {
+  width: auto;
+}
+.conflict.slim > a >.square {
   --size: 32px;
 }
-.conflict.artist > .square {
+.conflict.artist > a > .square {
   border-radius: 50%;
   border: 2px solid white;
 }
@@ -433,7 +428,7 @@ b {
   border: 20px solid transparent;
 }
 #iframeContainer.show {
-  opacity: 0.95;
+  opacity: 1;
   pointer-events: all;
 }
 iframe {

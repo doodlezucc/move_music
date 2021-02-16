@@ -28,7 +28,7 @@ abstract class PlaylistElement {
   PlaylistElement(
       this.id, this.name, this.description, this.thumbnailUrl, this.songCount) {
     e = LIElement()
-      ..className = 'playlist'
+      ..className = 'playlist responsive'
       ..append(squareImage(src: thumbnailUrl))
       ..append(DivElement()
         ..className = 'meta'
