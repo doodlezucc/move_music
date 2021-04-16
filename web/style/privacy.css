@@ -9,21 +9,15 @@ h1, h2, h3 {
 }
 h2 {
     margin-top: 48px;
-}
-h3 {
-    color: white;
+    color: var(--color-highlight);
 }
 p {
     margin: 8px 0;
 }
 
-a {
-    color: white;
-}
-
 i {
     font-style: normal;
-    color: white;
+    color: var(--color-highlight);
 }
 
 .list {
@@ -38,4 +32,5 @@ i {
     min-height: 12%;
     display: flex;
     align-items: center;
+    padding-bottom: 60px;
 }

@@ -14,9 +14,22 @@
 </head>
 
 <body>
+  <header>
+    <img src="style/icon-white.png" class="icon">
+  </header>
+  <footer>
+    <a href="https://github.com/doodlezucc/move_music">Source code on GitHub</a>
+    <a href="privacy.html">Privacy Policy</a>
+  </footer>
+
   <div class="section show" id="authSection">
     <h1>Move Music</h1>
-    <h2>YouTube Music to Spotify</h2>
+    <h2>from YouTube Music to Spotify</h2>
+    <p>
+      This service allows you to easily "move" created playlists, followed artists and liked songs from one streaming
+      service to another.
+    </p>
+    <p>You'll be able to personally choose which playlists to move and how to resolve songs without a perfect match.</p>
     <button id="authYT">Log into YouTube Music account</button>
   </div>
   <div class="section no-margin" id="playlistSection">
@@ -27,7 +40,7 @@
       <button id="selectNone">Deselect all</button>
     </span>
     <div id="playlists" class="big grid"></div>
-    <button id="submitPlaylists">Select playlists</button>
+    <button id="submitPlaylists">Next step</button>
   </div>
 
   <div class="section no-margin" id="conflictSection">
@@ -35,8 +48,8 @@
     <span class="inline">
       <p>
         Conflicts are songs or artists that don't have an exact Spotify equivalent.
-        <br>For each conflict, you can pick a suggested similar result or try a different search query.
-        <br>Rightclick a song or match to listen to it.
+        For each conflict, you can pick a suggested similar result or try a different search query.
+        <br><i>Rightclick a song or match to listen to it.</i>
       </p>
       <button id="showMatched" class="checkbox">Show resolved conflicts</button>
     </span>

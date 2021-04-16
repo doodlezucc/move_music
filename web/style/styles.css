@@ -9,13 +9,16 @@ html, body {
 }
 
 body {
-  padding: 4% 6%;
-  background-color: #0e236b;
-  color: #bbb;
+  padding: 50px 6% 70px 6%;
+  background: linear-gradient(160deg, #ff6989, #ff4870, #dd2d53) fixed;
+  color: #0f0a0c;
   font-family: 'Roboto', sans-serif;
-  --color-light: #ddd;
-  --color-title: #ff4870;
-  --color-good: #48ff94;
+  font-size: 19px;
+  --color-light: #ccc;
+  --color-dark: #0f0a0c;
+  --color-highlight: #5e0027;
+  --color-title: white;
+  --color-good: #52ffb7;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -23,9 +26,8 @@ body {
   justify-content: center;
 }
 
-#output {
-  padding: 20px;
-  text-align: center;
+::selection {
+  background-color: #fffa;
 }
 
 h1, h2 {
@@ -37,12 +39,53 @@ h1 {
   font-size: 40px;
 }
 h2 {
-  color: white;
   font-size: 30px;
 }
 
 p {
   margin: 0;
+}
+
+
+header, footer {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+header {
+  top: 0;
+  padding: 24px;
+}
+footer {
+  bottom: 0;
+  background-color: var(--color-dark);
+  color: var(--color-light);
+  padding: 20px 16px;
+  gap: 16px;
+  flex-direction: row;
+  justify-content: center;
+  z-index: 100;
+}
+
+.icon {
+  height: 60px;
+}
+
+@media screen and (max-width: 600px) {
+  .icon {
+    height: 40px;
+  }
+
+  header {
+    padding: 16px;
+  }
+  footer {
+    padding: 12px;
+    justify-content: space-evenly;;
+  }
 }
 
 .section {
@@ -83,6 +126,7 @@ p {
 
 #authSection {
   gap: 20px;
+  padding: 8% 20%;
 }
 #conflictSection {
   height: 100%;
@@ -132,30 +176,45 @@ input:focus::placeholder {
 a {
   color: inherit;
 }
+a:hover {
+  color: white;
+}
 
 button {
   border: none;
-  color: #111;
-  background-color: var(--color-light);
+  background-color: white;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   border-radius: 4px;
-  padding: 6px 8px;
+  padding: 10px 12px;
   outline: none;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 #0003;
 }
 button:enabled {
   cursor: pointer;
+}
+button:enabled:hover {
+  box-shadow: 2px 2px 0 #0003;
 }
 button:disabled {
   background-color: #ddd7;
 }
 
+button > a {
+  color: inherit !important;
+}
+
 .checkbox {
-  background-color: #aaa;
+  background-color: #ff899c;
 }
 .checkbox.checked {
   background-color: var(--color-good);
+}
+
+.shrink:hover::after {
+  content: attr('aria-label');
 }
 
 .grid {
@@ -166,7 +225,7 @@ button:disabled {
 }
 .grid.big {
   grid-template-columns: repeat(auto-fit, [col-start] minmax(350px, 1fr) [col-end]);
-  max-height: 65vh;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -177,7 +236,7 @@ button:disabled {
 }
 .responsive:hover, button:enabled:hover {
   transform: scale(0.98);
-  transition-duration: 0.1s;
+  transition-duration: 0.2s;
 }
 .responsive:active, button:enabled:active {
   transform: scale(0.95);
@@ -203,19 +262,21 @@ ul {
   flex-direction: column;
   overflow-y: auto;
   gap: 1px;
+  margin: 0;
 }
 
 li {
-  background-color: #000;
+  background-color: var(--color-dark);
   display: flex;
   flex-direction: row;
   padding: 6px;
   user-select: none;
   transition-duration: 0.05s;
   text-align: start;
+  color: var(--color-light);
 }
 li:hover {
-  background-color: #000a !important;
+  background-color: #000000c0 !important;
 }
 li {
   --size: 80px;
@@ -402,6 +463,9 @@ li.slim .source-duration {
   align-items: center;
   width: 100%;
 }
+.inline > button {
+  white-space: nowrap;
+}
 .inline > :first-child {
   margin-right: auto;
 }
@@ -410,12 +474,10 @@ li.slim .source-duration {
   font-size: 19px;
 }
 b {
-  color: white;
-  text-shadow: 0 0 4px #000a;
+  color: var(--color-highlight);
 }
 .highlight {
-  text-shadow: 0 0 4px #000a;
-  color: var(--color-title);
+  color: var(--color-highlight);
   font-weight: bold;
 }
 
