@@ -476,6 +476,13 @@ li.slim .source-duration {
   color: white;
 }
 
+#likesSection > span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
 #processLog {
   display: flex;
   flex-direction: column;
