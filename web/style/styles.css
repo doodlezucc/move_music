@@ -10,7 +10,7 @@ html, body {
 
 body {
   padding: 50px 6% 70px 6%;
-  background: linear-gradient(160deg, #ff6989, #ff4870, #dd2d53) fixed;
+  background: linear-gradient(160deg, #ff6183, #ff4870, #dd2d53) fixed;
   color: #0f0a0c;
   font-family: 'Roboto', sans-serif;
   font-size: 19px;
@@ -33,6 +33,7 @@ body {
 h1, h2 {
   font-family: 'Raleway', sans-serif;
   margin: 0;
+  text-align: center;
 }
 h1 {
   color: var(--color-title);
@@ -46,6 +47,38 @@ p {
   margin: 0;
 }
 
+@media screen and (max-width: 600px) {
+  .no-mobile {
+    display: none;
+  }
+
+  #conflicts {
+    gap: 2px;
+  }
+
+  .conflict:not(.slim) {
+    flex-wrap: wrap;
+  }
+  .conflict > .meta {
+    width: auto !important;
+    text-overflow: ellipsis;
+  }
+  .conflict:not(.slim) > a > .square {
+    --size: 60px !important;
+  }
+
+  .matches .square {
+    --size: 28px !important;
+  }
+
+  .matches td:nth-child(2) {
+    width: 45% !important;
+  }
+
+  .matches td:nth-child(n+4) {
+    display: none;
+  }
+}
 
 header, footer {
   position: fixed;
@@ -126,7 +159,7 @@ footer {
 
 #authSection {
   gap: 20px;
-  padding: 8% 20%;
+  padding: 8%;
 }
 #conflictSection {
   height: 100%;
@@ -182,6 +215,7 @@ a:hover {
 
 button {
   border: none;
+  color: inherit;
   background-color: white;
   font-family: inherit;
   font-size: 15px;
@@ -260,6 +294,7 @@ ul {
   width: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   overflow-y: auto;
   gap: 1px;
   margin: 0;
@@ -274,6 +309,8 @@ li {
   transition-duration: 0.05s;
   text-align: start;
   color: var(--color-light);
+  gap: 4px 0;
+  font-size: 16px;
 }
 li:hover {
   background-color: #000000c0 !important;
@@ -462,6 +499,8 @@ li.slim .source-duration {
   display: flex;
   align-items: center;
   width: 100%;
+  justify-content: space-around;
+  gap: 4px;
 }
 .inline > button {
   white-space: nowrap;
